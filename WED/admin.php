@@ -32,6 +32,30 @@ if (isset($_POST['add_product'])) {
     mysqli_query($conn, $sql);
     echo "<script>alert('Đã thêm vật phẩm!'); window.location='admin.php';</script>";
 }
+
+// ==========================================
+// 4. XỬ LÝ DUYỆT THANH TOÁN (TÍNH NĂNG MỚI)
+// ==========================================
+if (isset($_GET['approve_order'])) {
+    $order_id = (int)$_GET['approve_order'];
+    $query = mysqli_query($conn, "SELECT product_id FROM orders WHERE id=$order_id AND status='pending'");
+    if ($row = mysqli_fetch_assoc($query)) {
+        $p_id = $row['product_id'];
+        // Cập nhật trạng thái đơn hàng thành 'paid'
+        mysqli_query($conn, "UPDATE orders SET status='paid' WHERE id=$order_id");
+        // Cập nhật sản phẩm thành đã thanh toán
+        mysqli_query($conn, "UPDATE products SET is_paid=1 WHERE id=$p_id");
+        echo "<script>alert('Đã duyệt thanh toán thành công!'); window.location='admin.php';</script>";
+    }
+}
+
+// 5. XỬ LÝ TỪ CHỐI THANH TOÁN (TÍNH NĂNG MỚI)
+if (isset($_GET['cancel_order'])) {
+    $order_id = (int)$_GET['cancel_order'];
+    // Xóa đơn hàng đang pending để user có thể gửi lại yêu cầu thanh toán
+    mysqli_query($conn, "DELETE FROM orders WHERE id=$order_id AND status='pending'");
+    echo "<script>alert('Đã từ chối đơn hàng!'); window.location='admin.php';</script>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -149,7 +173,8 @@ if (isset($_POST['add_product'])) {
                                 echo "<li class='list-group-item bg-transparent text-light d-flex justify-content-between align-items-center border-bottom border-secondary'>
                                         <div>
                                             <strong>{$u['username']}</strong> <br>
-                                            <small class='text-muted'>{$u['full_name']}</small>
+                                            <small class='text-muted'>{$u['full_name']}</small> <br>
+                                            <small class='text-info'><i class='fa-solid fa-envelope me-1'></i> {$u['email']}</small>
                                         </div>
                                         <a href='admin.php?del_user={$u['id']}' onclick='return confirm(\"Xóa user này?\")' class='text-danger'><i class='fa-solid fa-trash'></i></a>
                                       </li>";
@@ -162,6 +187,58 @@ if (isset($_POST['add_product'])) {
 
             <div class="col-lg-8">
                 
+                <div class="admin-card" style="border-color: #f39c12;">
+                    <h5 class="card-header-custom" style="color: #f39c12; border-bottom-color: #553a11;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Yêu Cầu Thanh Toán Đang Chờ
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-dark-custom mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Mã ĐH</th>
+                                    <th>Người mua</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-danger">Số tiền</th>
+                                    <th>Thời gian gửi</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $sql_orders = "SELECT o.id, o.amount, o.created_at, u.username, u.full_name, p.name 
+                                               FROM orders o 
+                                               JOIN users u ON o.user_id = u.id 
+                                               JOIN products p ON o.product_id = p.id 
+                                               WHERE o.status = 'pending' 
+                                               ORDER BY o.created_at ASC";
+                                $result_orders = mysqli_query($conn, $sql_orders);
+
+                                if (mysqli_num_rows($result_orders) > 0) {
+                                    while ($order = mysqli_fetch_assoc($result_orders)) {
+                                        echo "<tr>";
+                                        echo "<td>#{$order['id']}</td>";
+                                        echo "<td>
+                                                <span class='text-warning fw-bold'>{$order['username']}</span><br>
+                                                <small class='text-muted'>{$order['full_name']}</small>
+                                              </td>";
+                                        echo "<td><div style='max-width: 150px;' class='text-truncate' title='{$order['name']}'>{$order['name']}</div></td>";
+                                        echo "<td class='text-danger fw-bold'>" . number_format($order['amount']) . " đ</td>";
+                                        echo "<td><small class='text-muted'>" . date("d/m H:i", strtotime($order['created_at'])) . "</small></td>";
+                                        echo "<td>
+                                                <a href='admin.php?approve_order={$order['id']}' class='btn btn-success btn-sm me-1' onclick='return confirm(\"Xác nhận bạn ĐÃ NHẬN ĐƯỢC TIỀN từ tài khoản này?\")' title='Duyệt'><i class='fa-solid fa-check'></i></a>
+                                                <a href='admin.php?cancel_order={$order['id']}' class='btn btn-outline-danger btn-sm' onclick='return confirm(\"Từ chối đơn hàng này?\")' title='Từ chối'><i class='fa-solid fa-xmark'></i></a>
+                                              </td>";
+                                        echo "</tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='6' class='text-center text-muted py-4'>Hiện không có đơn hàng nào chờ duyệt.</td></tr>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="admin-card">
                     <h5 class="card-header-custom"><i class="fa-solid fa-gavel"></i> Tài Sản Đang Đấu Giá</h5>
                     <div class="table-responsive">

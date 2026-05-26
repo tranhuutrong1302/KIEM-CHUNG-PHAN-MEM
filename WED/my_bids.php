@@ -3,23 +3,25 @@ include 'db.php';
 checkLogin(); // Bắt buộc đăng nhập
 $user_id = $_SESSION['user_id'];
 
-// Xử lý thanh toán (Khi bấm nút Thanh toán)
-if (isset($_GET['pay'])) {
-    $p_id = $_GET['pay'];
-    $amount = $_GET['amount'];
+// XỬ LÝ KHI NGƯỜI DÙNG XÁC NHẬN ĐÃ CHUYỂN KHOẢN
+if (isset($_POST['confirm_pay'])) {
+    $p_id = (int)$_POST['product_id'];
+    $amount = $_POST['amount'];
     
-    // Kiểm tra lại lần cuối xem user này có phải người thắng không
+    // Kiểm tra xem user này có phải người thắng không
     $check_winner = mysqli_query($conn, "SELECT price FROM products WHERE id=$p_id");
     $prod_info = mysqli_fetch_assoc($check_winner);
     
     if ($prod_info['price'] == $amount) {
-        // Tạo đơn hàng
-        mysqli_query($conn, "INSERT INTO orders (user_id, product_id, amount) VALUES ($user_id, $p_id, $amount)");
-        // Cập nhật trạng thái đã thanh toán
-        mysqli_query($conn, "UPDATE products SET is_paid = 1 WHERE id = $p_id");
-        echo "<script>alert('Thanh toán thành công! Cảm ơn bạn.'); window.location='my_bids.php';</script>";
+        // Kiểm tra xem đã tạo đơn hàng pending trước đó chưa (tránh spam click)
+        $check_order = mysqli_query($conn, "SELECT id FROM orders WHERE product_id=$p_id AND user_id=$user_id");
+        if (mysqli_num_rows($check_order) == 0) {
+            // TẠO ĐƠN HÀNG VỚI TRẠNG THÁI 'pending' (Chờ duyệt)
+            mysqli_query($conn, "INSERT INTO orders (user_id, product_id, amount, status) VALUES ($user_id, $p_id, $amount, 'pending')");
+            echo "<script>alert('Đã gửi thông báo chuyển khoản! Vui lòng chờ Admin duyệt.'); window.location='my_bids.php';</script>";
+        }
     } else {
-        echo "<script>alert('Lỗi: Giá sản phẩm đã thay đổi hoặc bạn không phải người thắng.'); window.location='my_bids.php';</script>";
+        echo "<script>alert('Lỗi: Dữ liệu không hợp lệ.'); window.location='my_bids.php';</script>";
     }
 }
 ?>
@@ -52,123 +54,32 @@ if (isset($_GET['pay'])) {
             min-height: 100vh;
         }
 
-        /* --- NAVBAR (Đồng bộ trang chủ) --- */
-        .navbar {
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-        }
-        .navbar-brand { 
-            font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.4rem;
-            background: linear-gradient(to right, var(--gold-start), var(--gold-mid), var(--gold-end));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        /* --- TIÊU ĐỀ TRANG --- */
-        .page-header {
-            text-align: center; margin: 40px 0;
-        }
-        .page-title {
-            font-family: 'Cinzel', serif; color: var(--gold-mid); font-size: 2rem;
-            display: inline-block; position: relative; padding-bottom: 15px;
-        }
-        .page-title::after {
-            content: ''; position: absolute; bottom: 0; left: 25%; width: 50%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold-mid), transparent);
-        }
-
-        /* --- TABLE CONTAINER (GLASS STYLE) --- */
-        .glass-container {
-            background: var(--glass-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        /* --- TABLE CUSTOM --- */
-        .custom-table {
-            width: 100%;
-            color: #ccc;
-            vertical-align: middle;
-        }
-        .custom-table thead th {
-            background: rgba(0,0,0,0.5);
-            color: var(--gold-mid);
-            font-family: 'Cinzel', serif;
-            font-weight: normal;
-            border-bottom: 1px solid var(--gold-start);
-            padding: 15px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-        }
-        .custom-table tbody td {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .custom-table tbody tr {
-            transition: all 0.3s;
-        }
-        .custom-table tbody tr:hover {
-            background: rgba(255, 215, 0, 0.05); /* Hover màu vàng nhạt */
-        }
-
-        /* --- HÌNH ẢNH SẢN PHẨM --- */
-        .product-thumb {
-            width: 60px; height: 60px; object-fit: cover;
-            border: 1px solid #444; border-radius: 4px;
-        }
-
-        /* --- STATUS BADGES (NEON STYLE) --- */
-        .status-badge {
-            padding: 6px 12px; border-radius: 4px; font-size: 0.75rem; 
-            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            display: inline-block;
-        }
+        .navbar { background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 215, 0, 0.1); }
+        .navbar-brand { font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.4rem; background: linear-gradient(to right, var(--gold-start), var(--gold-mid), var(--gold-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header { text-align: center; margin: 40px 0; }
+        .page-title { font-family: 'Cinzel', serif; color: var(--gold-mid); font-size: 2rem; display: inline-block; position: relative; padding-bottom: 15px; }
+        .page-title::after { content: ''; position: absolute; bottom: 0; left: 25%; width: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold-mid), transparent); }
+        .glass-container { background: var(--glass-bg); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 20px; overflow: hidden; }
+        .custom-table { width: 100%; color: #ccc; vertical-align: middle; }
+        .custom-table thead th { background: rgba(0,0,0,0.5); color: var(--gold-mid); font-family: 'Cinzel', serif; font-weight: normal; border-bottom: 1px solid var(--gold-start); padding: 15px; text-transform: uppercase; font-size: 0.9rem; }
+        .custom-table tbody td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .custom-table tbody tr { transition: all 0.3s; }
+        .custom-table tbody tr:hover { background: rgba(255, 215, 0, 0.05); }
+        .product-thumb { width: 60px; height: 60px; object-fit: cover; border: 1px solid #444; border-radius: 4px; }
         
-        /* Thất bại (Red) */
-        .badge-fail {
-            color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3);
-            background: rgba(255, 71, 87, 0.1);
-        }
+        .status-badge { padding: 6px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; display: inline-block; }
+        .badge-fail { color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.1); }
+        .badge-lead { color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); background: rgba(46, 213, 115, 0.1); }
+        .badge-won { color: var(--gold-mid); border: 1px solid var(--gold-start); background: rgba(191, 149, 63, 0.2); box-shadow: 0 0 10px rgba(191, 149, 63, 0.2); }
+        .badge-paid { color: #fff; background: #2ed573; border: 1px solid #2ed573; }
         
-        /* Đang dẫn đầu (Blue/Gold) */
-        .badge-lead {
-            color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3);
-            background: rgba(46, 213, 115, 0.1);
-        }
-        
-        /* Chiến thắng (Gold) */
-        .badge-won {
-            color: var(--gold-mid); border: 1px solid var(--gold-start);
-            background: rgba(191, 149, 63, 0.2);
-            box-shadow: 0 0 10px rgba(191, 149, 63, 0.2);
-        }
-        
-        /* Đã thanh toán (Green) */
-        .badge-paid {
-            color: #fff; background: #2ed573; border: 1px solid #2ed573;
-        }
+        /* Màu cho trạng thái Đang xử lý */
+        .badge-pending { color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3); background: rgba(243, 156, 18, 0.1); }
 
-        /* --- BUTTONS --- */
-        .btn-pay-gold {
-            background: linear-gradient(45deg, var(--gold-start), var(--gold-end));
-            color: #000; border: none; padding: 5px 15px;
-            font-weight: bold; font-size: 0.8rem;
-            transition: 0.3s; box-shadow: 0 0 10px rgba(191, 149, 63, 0.4);
-        }
-        .btn-pay-gold:hover {
-            transform: translateY(-2px); box-shadow: 0 0 20px rgba(191, 149, 63, 0.7); color: #fff;
-        }
-        
-        .back-link {
-            color: #888; text-decoration: none; transition: 0.3s;
-        }
+        .btn-pay-gold { background: linear-gradient(45deg, var(--gold-start), var(--gold-end)); color: #000; border: none; padding: 5px 15px; font-weight: bold; font-size: 0.8rem; transition: 0.3s; box-shadow: 0 0 10px rgba(191, 149, 63, 0.4); }
+        .btn-pay-gold:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(191, 149, 63, 0.7); color: #fff; }
+        .back-link { color: #888; text-decoration: none; transition: 0.3s; }
         .back-link:hover { color: var(--gold-mid); }
-        
-        /* Footer mini */
         .footer-note { margin-top: 30px; color: #666; font-size: 0.8rem; text-align: center; font-style: italic; }
     </style>
 </head>
@@ -193,17 +104,20 @@ if (isset($_GET['pay'])) {
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Thời gian</th>
+                            <th>Ngày đặt</th>
                             <th>Sản phẩm</th>
                             <th>Giá bạn đặt</th>
-                            <th>Giá cao nhất</th>
+                            <th style="color: #ff4757 !important; font-weight: bold;">Giá cao nhất</th> 
+                            <th>Kết thúc</th>
                             <th>Trạng thái</th>
                             <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        $sql = "SELECT b.*, p.name, p.image, p.price as current_price, p.end_time, p.is_paid 
+                        // Cập nhật câu lệnh SQL: Kéo thêm cột 'status' từ bảng orders để biết đơn hàng đang ở trạng thái nào
+                        $sql = "SELECT b.*, p.name, p.image, p.price as current_price, p.end_time, p.is_paid, 
+                                       (SELECT status FROM orders WHERE product_id = p.id AND user_id = $user_id LIMIT 1) as order_status 
                                 FROM bids b 
                                 JOIN products p ON b.product_id = p.id 
                                 WHERE b.user_id = $user_id 
@@ -214,27 +128,32 @@ if (isset($_GET['pay'])) {
 
                         if (mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
-                                // Logic trạng thái
                                 $my_bid = $row['bid_amount'];
                                 $curr_price = $row['current_price'];
                                 $end_time = $row['end_time'];
                                 $is_paid = $row['is_paid'];
+                                $order_status = $row['order_status']; // Trạng thái: NULL, 'pending', hoặc 'paid'
+                                $endTimeJs = strtotime($end_time) * 1000;
                                 
                                 $status_html = "";
                                 $action_html = "";
 
-                                // Logic hiển thị (Giống logic cũ nhưng style mới)
                                 if ($my_bid < $curr_price) {
                                     $status_html = "<span class='status-badge badge-fail'>Bị vượt giá</span>";
                                     $action_html = "<span class='text-muted small'>-</span>";
                                 } else {
                                     if ($now > $end_time) {
-                                        if ($is_paid == 1) {
+                                        // KIỂM TRA TRẠNG THÁI THANH TOÁN MỚI
+                                        if ($is_paid == 1 || $order_status == 'paid') {
                                             $status_html = "<span class='status-badge badge-paid'>Đã thanh toán</span>";
                                             $action_html = "<span class='text-success small'><i class='fa-solid fa-check'></i> Xong</span>";
+                                        } elseif ($order_status == 'pending') {
+                                            $status_html = "<span class='status-badge badge-pending'>Đang xử lý</span>";
+                                            $action_html = "<span class='text-warning small'><i class='fa-solid fa-spinner fa-spin'></i> Chờ duyệt</span>";
                                         } else {
                                             $status_html = "<span class='status-badge badge-won'>CHIẾN THẮNG</span>";
-                                            $action_html = "<a href='my_bids.php?pay={$row['product_id']}&amount={$my_bid}' class='btn btn-pay-gold'>THANH TOÁN</a>";
+                                            // Gọi function mở Modal thay vì điều hướng URL
+                                            $action_html = "<button onclick='openBankModal({$row['product_id']}, {$my_bid}, \"".htmlspecialchars($row['name'])."\")' class='btn btn-pay-gold'>THANH TOÁN</button>";
                                         }
                                     } else {
                                         $status_html = "<span class='status-badge badge-lead'>Đang dẫn đầu</span>";
@@ -242,7 +161,6 @@ if (isset($_GET['pay'])) {
                                     }
                                 }
 
-                                // Render Row
                                 echo "<tr>";
                                 echo "<td>" . date("H:i d/m", strtotime($row['bid_time'])) . "</td>";
                                 echo "<td>
@@ -251,14 +169,22 @@ if (isset($_GET['pay'])) {
                                             <span class='fw-bold text-white'>{$row['name']}</span>
                                         </div>
                                       </td>";
-                                echo "<td style='color:var(--gold-mid); font-weight:bold;'>" . number_format($my_bid) . "</td>";
-                                echo "<td class='text-muted'>" . number_format($curr_price) . "</td>";
+                                echo "<td style='color:var(--gold-mid); font-weight:bold;'>" . number_format($my_bid) . " đ</td>";
+                                echo "<td class='text-danger fw-bold'>" . number_format($curr_price) . " đ</td>";
+                                
+                                echo "<td>
+                                        <span class='timer text-warning fw-bold' data-time='{$endTimeJs}' style='font-size: 0.85rem;'>
+                                            <i class='fa-regular fa-hourglass-half'></i> Đang tính...
+                                        </span><br>
+                                        <small class='text-muted'>" . date("H:i d/m", strtotime($end_time)) . "</small>
+                                      </td>";
+                                      
                                 echo "<td>$status_html</td>";
                                 echo "<td>$action_html</td>";
                                 echo "</tr>";
                             }
                         } else {
-                            echo "<tr><td colspan='6' class='text-center py-5 text-muted'>Bạn chưa tham gia đấu giá nào.</td></tr>";
+                            echo "<tr><td colspan='7' class='text-center py-5 text-muted'>Bạn chưa tham gia đấu giá nào.</td></tr>";
                         }
                         ?>
                     </tbody>
@@ -271,6 +197,78 @@ if (isset($_GET['pay'])) {
         </div>
     </div>
 
+    <div class="modal fade" id="bankModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: #1a1a1a; border: 1px solid #c5a059;">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" style="color: var(--gold-mid); font-family: 'Cinzel', serif;">THÔNG TIN CHUYỂN KHOẢN</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST">
+                    <div class="modal-body text-light">
+                        <p class="text-muted small mb-3">Vui lòng chuyển khoản đúng số tiền để hệ thống xác nhận thanh toán cho: <strong id="bProductName" class="text-white"></strong></p>
+                        
+                        <div class="p-3 mb-3" style="background: rgba(0,0,0,0.5); border: 1px dashed var(--gold-start); border-radius: 8px;">
+                            <div class="mb-2"><span class="text-muted">Ngân hàng:</span> <strong class="text-white float-end">VIETCOMBANK</strong></div>
+                            <div class="mb-2"><span class="text-muted">Chủ tài khoản:</span> <strong class="text-white float-end">NGUYEN VAN A</strong></div>
+                            <div class="mb-2"><span class="text-muted">Số tài khoản:</span> <strong class="text-warning float-end fs-5">0123456789</strong></div>
+                            <div class="mb-2"><span class="text-muted">Số tiền:</span> <strong id="bAmountShow" class="text-danger float-end fw-bold"></strong></div>
+                            <div><span class="text-muted">Nội dung CK:</span> <strong id="bContentShow" class="text-info float-end"></strong></div>
+                        </div>
+
+                        <input type="hidden" name="product_id" id="bProductId">
+                        <input type="hidden" name="amount" id="bAmount">
+                        
+                        <div class="alert alert-warning py-2 mb-0" style="font-size: 0.85rem; background-color: rgba(243, 156, 18, 0.1); border-color: rgba(243, 156, 18, 0.3); color: #f39c12;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Vui lòng bấm "Đã chuyển khoản" <strong>SAU KHI</strong> thực hiện giao dịch thành công. Admin sẽ kiểm tra và duyệt đơn.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" name="confirm_pay" class="btn btn-pay-gold">ĐÃ CHUYỂN KHOẢN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // SCRIPT ĐẾM NGƯỢC
+        setInterval(() => {
+            document.querySelectorAll('.timer').forEach(el => {
+                const dest = parseInt(el.dataset.time); 
+                const now = new Date().getTime(); 
+                const diff = dest - now; 
+                
+                if(diff <= 0) { 
+                    el.innerHTML = "Đã kết thúc"; el.style.color = "#888"; el.classList.remove('text-warning');
+                } else {
+                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+                    let timeString = `<i class="fa-regular fa-hourglass-half"></i> `;
+                    if(d > 0) timeString += `${d} ngày `;
+                    timeString += `${h}h ${m}p ${s}s`;
+                    el.innerHTML = timeString;
+                }
+            });
+        }, 1000);
+
+        // SCRIPT MỞ BẢNG THANH TOÁN (MODAL)
+        function openBankModal(id, amount, name) {
+            document.getElementById('bProductId').value = id;
+            document.getElementById('bAmount').value = amount;
+            document.getElementById('bProductName').innerText = name;
+            
+            // Format số tiền và nội dung chuyển khoản tự động
+            document.getElementById('bAmountShow').innerText = new Intl.NumberFormat('de-DE').format(amount) + ' VNĐ';
+            document.getElementById('bContentShow').innerText = 'THANHTOAN SP' + id;
+            
+            new bootstrap.Modal(document.getElementById('bankModal')).show();
+        }
+    </script>
 </body>
 </html>
