@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'config/db.php';
 
 // 1. Xử lý XÓA SẢN PHẨM
 if (isset($_GET['delete_id'])) {
