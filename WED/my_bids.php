@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'config/db.php';
 checkLogin(); // Bắt buộc đăng nhập
 $user_id = $_SESSION['user_id'];
 
