@@ -5,3 +5,4 @@ test-results/
 .phpunit.result.cache
 .env
 uploads/
+composer.lock

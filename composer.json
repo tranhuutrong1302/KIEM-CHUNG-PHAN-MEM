@@ -1,0 +1,12 @@
+{
+    "name": "nho/kiem-chung-phan-mem",
+    "description": "Project for Software Testing course",
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "classmap": [
+            "WED/config"
+        ]
+    }
+}
