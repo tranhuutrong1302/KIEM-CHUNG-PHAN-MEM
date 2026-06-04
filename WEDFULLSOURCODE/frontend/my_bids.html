@@ -9,29 +9,177 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        .product-thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); }
-        .product-info { display: flex; align-items: center; gap: 14px; }
-        .product-name { font-weight: 700; color: #ffffff; }
-        .product-meta { font-size: 0.85rem; color: #adb5bd; }
-        .custom-table tbody td { vertical-align: middle; }
+        /* Tùy chỉnh màu sắc chủ đạo */
+        :root {
+            --gold-primary: #d4af37;
+            --gold-light: #f9e596;
+            --gold-dark: #aa8c2c;
+            --bg-dark: #0f0f11;
+            --surface-dark: #1a1a1e;
+            --text-main: #e0e0e0;
+            --text-muted: #8b8b93;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Manrope', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: rgba(15, 15, 17, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .navbar-brand {
+            color: var(--gold-primary) !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        /* Nút bấm vàng kim */
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            color: #000;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+            color: #000;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        .btn-outline-gold {
+            background: transparent;
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-gold:hover {
+            background: var(--gold-primary);
+            color: #000;
+        }
+
+        /* Tiêu đề trang */
+        .page-title {
+            color: var(--gold-primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Khung Glassmorphism */
+        .glass-container {
+            background: var(--surface-dark);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Bảng hiển thị */
+        .custom-table {
+            width: 100%;
+            color: var(--text-main);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .custom-table thead th {
+            color: var(--gold-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            padding: 16px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            white-space: nowrap;
+        }
+        .custom-table tbody td {
+            padding: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.3s ease;
+        }
+        .custom-table tbody tr:hover td {
+            background: rgba(212, 175, 55, 0.03);
+        }
+
+        /* Sản phẩm */
+        .product-info { display: flex; align-items: center; gap: 16px; }
+        .product-thumb { 
+            width: 60px; 
+            height: 60px; 
+            object-fit: cover; 
+            border-radius: 10px; 
+            border: 1px solid rgba(212, 175, 55, 0.3); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .product-name { font-weight: 600; color: #fff; font-size: 1rem; margin-bottom: 4px; }
+        .product-meta { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Giá tiền */
+        .price-gold { color: var(--gold-primary); font-weight: 700; font-size: 1.05rem; }
+        .price-current { color: #ff6b6b; font-weight: 700; font-size: 1.05rem; }
+
+        /* Badges trạng thái */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            min-width: 100px;
+        }
+        .badge-lead { background: rgba(212, 175, 55, 0.15); color: var(--gold-light); border: 1px solid var(--gold-primary); }
+        .badge-fail { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .badge-won { background: rgba(46, 213, 115, 0.15); color: #2ed573; border: 1px solid #2ed573; }
+        .badge-paid { background: rgba(30, 144, 255, 0.15); color: #1e90ff; border: 1px solid #1e90ff; }
+        .badge-pending { background: rgba(255, 165, 2, 0.15); color: #ffa502; border: 1px solid #ffa502; }
+
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">ROYAL BID</a>
-            <div class="ms-auto d-flex gap-2 align-items-center">
-                <button class="btn btn-outline-light btn-sm" onclick="goHome()"><i class="fa-solid fa-house"></i> Trang chủ</button>
-                <button class="btn btn-sm btn-secondary" onclick="logout()">Thoát</button>
+            <a class="navbar-brand" href="index.html">
+                <i class="fa-solid fa-crown me-2"></i>ROYAL BID
+            </a>
+            <div class="ms-auto d-flex gap-3 align-items-center">
+                <button class="btn btn-outline-gold btn-sm px-3 py-2" onclick="goHome()">
+                    <i class="fa-solid fa-house me-1"></i> Trang chủ
+                </button>
+                <button class="btn btn-gold btn-sm px-4 py-2" onclick="logout()">
+                    <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Thoát
+                </button>
             </div>
         </div>
     </nav>
 
     <div class="container py-5">
         <div class="page-header text-center mb-5">
-            <h2 class="page-title">Lịch sử đấu giá của bạn</h2>
+            <h2 class="page-title"><i class="fa-solid fa-gavel me-2"></i>Lịch sử đấu giá của bạn</h2>
+            <p class="text-muted mt-2">Theo dõi các phiên đấu giá bạn đã tham gia</p>
         </div>
-        <div id="bidContent"></div>
+        <div id="bidContent">
+            <div class="text-center py-5">
+                <div class="spinner-border" style="color: var(--gold-primary);" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -46,12 +194,16 @@
                 options.headers['Content-Type'] = 'application/json';
                 options.body = JSON.stringify(options.body);
             }
-            const response = await fetch(`${API_BASE}/${path}`, options);
-            return { status: response.status, data: await response.json() };
+            try {
+                const response = await fetch(`${API_BASE}/${path}`, options);
+                return { status: response.status, data: await response.json() };
+            } catch (error) {
+                return { status: 500, data: null };
+            }
         }
 
         function normalizeImageUrl(path) {
-            if (!path) return '';
+            if (!path) return 'https://via.placeholder.com/70x70?text=No+Image'; // Ảnh mặc định
             if (path.startsWith('http')) return path;
             path = path.replace(/\\/g, '/');
             const trimmed = path.startsWith('/') ? path.slice(1) : path;
@@ -59,68 +211,79 @@
         }
 
         function formatMoney(value) {
-            return Number(value).toLocaleString('de-DE') + ' đ';
+            return Number(value).toLocaleString('vi-VN') + ' đ'; // Đổi de-DE sang vi-VN cho chuẩn Việt Nam
         }
 
         function renderBids(items) {
-            if (!items.length) {
-                document.getElementById('bidContent').innerHTML = '<div class="alert alert-secondary text-center">Bạn chưa tham gia đấu giá nào.</div>';
+            if (!items || !items.length) {
+                document.getElementById('bidContent').innerHTML = `
+                    <div class="glass-container text-center py-5">
+                        <i class="fa-solid fa-box-open fa-3x mb-3" style="color: var(--gold-dark);"></i>
+                        <h5 class="text-white">Bạn chưa tham gia đấu giá nào</h5>
+                        <p class="text-muted">Hãy quay lại trang chủ để tìm kiếm những vật phẩm giá trị.</p>
+                        <button class="btn btn-gold mt-3" onclick="goHome()">Khám phá ngay</button>
+                    </div>`;
                 return;
             }
             const rows = items.map(item => {
                 const now = Date.now();
                 const diff = item.end_time_js - now;
-                let expireText = 'Kết thúc';
+                let expireText = '<span class="text-white">Đã kết thúc</span>';
+                
                 if (diff > 0) {
                     const d = Math.floor(diff / (1000*60*60*24));
                     const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
                     const m = Math.floor((diff % (1000*60*60)) / (1000*60));
                     const s = Math.floor((diff % (1000*60)) / 1000);
-                    expireText = `${d}d ${h}h ${m}m ${s}s`;
+                    expireText = `<i class="fa-regular fa-clock me-1"></i> ${d}n ${h}g ${m}p ${s}g`;
                 }
-                let status = '<span class="status-badge badge-fail">Bị vượt giá</span>';
+
+                let status = '<span class="status-badge badge-fail"><i class="fa-solid fa-xmark me-1"></i>Bị vượt giá</span>';
+                
                 if (item.bid_amount >= item.current_price) {
                     if (diff <= 0) {
                         if (item.order_status === 'paid' || item.is_paid == 1) {
-                            status = '<span class="status-badge badge-paid">Đã thanh toán</span>';
+                            status = '<span class="status-badge badge-paid"><i class="fa-solid fa-check-double me-1"></i>Đã thanh toán</span>';
                         } else if (item.order_status === 'pending') {
-                            status = '<span class="status-badge badge-pending">Đang xử lý</span>';
+                            status = '<span class="status-badge badge-pending"><i class="fa-solid fa-hourglass-half me-1"></i>Đang xử lý</span>';
                         } else {
-                            status = '<span class="status-badge badge-won">Chiến thắng</span>';
+                            status = '<span class="status-badge badge-won"><i class="fa-solid fa-trophy me-1"></i>Chiến thắng</span>';
                         }
                     } else {
-                        status = '<span class="status-badge badge-lead">Đang dẫn đầu</span>';
+                        status = '<span class="status-badge badge-lead"><i class="fa-solid fa-star me-1"></i>Đang dẫn đầu</span>';
                     }
                 }
+
                 return `
                     <tr>
-                        <td>${new Date(item.bid_time).toLocaleString('vi-VN')}</td>
+                        <td class="text-white"><i class="fa-regular fa-calendar-alt me-2"></i>${new Date(item.bid_time).toLocaleString('vi-VN')}</td>
                         <td>
-                    <div class="product-info">
-                        <img src="${normalizeImageUrl(item.image)}" class="product-thumb" alt="thumb">
-                        <div>
-                            <div class="product-name">${item.name}</div>
-                            <div class="product-meta">Mã SP: ${item.product_id || ''}</div>
-                        </div>
-                    </div>
-                </td>
-                        <td class="text-warning fw-bold">${formatMoney(item.bid_amount)}</td>
-                        <td class="text-danger fw-bold">${formatMoney(item.current_price)}</td>
-                        <td>${expireText}</td>
+                            <div class="product-info">
+                                <img src="${normalizeImageUrl(item.image)}" class="product-thumb" alt="thumb">
+                                <div>
+                                    <div class="product-name">${item.name}</div>
+                                    <div class="product-meta">Mã SP: ${item.product_id || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="price-gold">${formatMoney(item.bid_amount)}</td>
+                        <td class="price-current">${formatMoney(item.current_price)}</td>
+                        <td class="text-white">${expireText}</td>
                         <td>${status}</td>
                     </tr>`;
             }).join('');
+            
             document.getElementById('bidContent').innerHTML = `
                 <div class="glass-container">
                     <div class="table-responsive">
                         <table class="custom-table">
                             <thead>
                                 <tr>
-                                    <th>Ngày đặt</th>
-                                    <th>Sản phẩm</th>
-                                    <th>Giá bạn đặt</th>
+                                    <th>Thời gian đặt</th>
+                                    <th>Thông tin vật phẩm</th>
+                                    <th>Mức giá của bạn</th>
                                     <th>Giá hiện tại</th>
-                                    <th>Kết thúc</th>
+                                    <th>Thời gian còn lại</th>
                                     <th>Trạng thái</th>
                                 </tr>
                             </thead>
@@ -132,12 +295,15 @@
 
         async function loadBids() {
             const result = await apiFetch('my_bids.php');
-            if (result.status === 200 && result.data.success) {
+            if (result.status === 200 && result.data && result.data.success) {
                 renderBids(result.data.data);
             } else if (result.status === 401) {
                 window.location.href = 'login.html';
             } else {
-                document.getElementById('bidContent').innerHTML = '<div class="alert alert-danger">Không tải được dữ liệu. Vui lòng thử lại.</div>';
+                document.getElementById('bidContent').innerHTML = `
+                    <div class="alert alert-danger text-center" style="background: rgba(255,0,0,0.1); border: 1px solid #ff4d4d; color: #ff4d4d;">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>Không tải được dữ liệu. Vui lòng kiểm tra lại kết nối.
+                    </div>`;
             }
         }
 
@@ -146,6 +312,7 @@
             window.location.href = 'login.html';
         }
 
+        // Khởi tạo
         loadBids();
     </script>
 </body>
