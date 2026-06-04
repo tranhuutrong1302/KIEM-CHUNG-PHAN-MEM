@@ -239,18 +239,26 @@
                 }
 
                 let status = '<span class="status-badge badge-fail"><i class="fa-solid fa-xmark me-1"></i>Bị vượt giá</span>';
+                let actionHtml = '<span class="text-muted small">-</span>';
+                const paymentNote = `CK_SP${item.product_id}_UID${Math.floor(Math.random() * 10000)}`; // Tạm thời
                 
                 if (item.bid_amount >= item.current_price) {
                     if (diff <= 0) {
                         if (item.order_status === 'paid' || item.is_paid == 1) {
                             status = '<span class="status-badge badge-paid"><i class="fa-solid fa-check-double me-1"></i>Đã thanh toán</span>';
+                            actionHtml = '<span class="text-success small"><i class="fa-solid fa-check"></i> Hoàn tất</span>';
                         } else if (item.order_status === 'pending') {
                             status = '<span class="status-badge badge-pending"><i class="fa-solid fa-hourglass-half me-1"></i>Đang xử lý</span>';
+                            actionHtml = `<div class="small text-warning"><i class="fa-solid fa-spinner fa-spin"></i> Chờ admin</div>
+                                          <div class="small text-white mt-1"><strong>${paymentNote}</strong></div>`;
                         } else {
                             status = '<span class="status-badge badge-won"><i class="fa-solid fa-trophy me-1"></i>Chiến thắng</span>';
+                            actionHtml = `<button class="btn btn-sm btn-warning payment-btn" data-product-id="${item.product_id}" data-amount="${item.bid_amount}" data-name="${item.name.replace(/"/g, '&quot;')}">THANH TOÁN</button>
+                                          <div class="small text-white mt-2"><strong>${paymentNote}</strong></div>`;
                         }
                     } else {
                         status = '<span class="status-badge badge-lead"><i class="fa-solid fa-star me-1"></i>Đang dẫn đầu</span>';
+                        actionHtml = '<span class="text-muted small">...</span>';
                     }
                 }
 
@@ -270,6 +278,7 @@
                         <td class="price-current">${formatMoney(item.current_price)}</td>
                         <td class="text-white">${expireText}</td>
                         <td>${status}</td>
+                        <td>${actionHtml}</td>
                     </tr>`;
             }).join('');
             
@@ -285,12 +294,23 @@
                                     <th>Giá hiện tại</th>
                                     <th>Thời gian còn lại</th>
                                     <th>Trạng thái</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
                         </table>
                     </div>
                 </div>`;
+            
+            // Thêm event listener cho các nút thanh toán
+            document.querySelectorAll('.payment-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = this.dataset.productId;
+                    const amount = this.dataset.amount;
+                    const name = this.dataset.name;
+                    showPaymentModal(productId, amount, name);
+                });
+            });
         }
 
         async function loadBids() {
@@ -312,8 +332,87 @@
             window.location.href = 'login.html';
         }
 
+        // Modal thanh toán
+        function showPaymentModal(productId, amount, productName) {
+            document.getElementById('modalProductName').innerText = productName;
+            document.getElementById('modalAmount').innerText = formatMoney(amount);
+            document.getElementById('modalContent').innerText = `CK_SP${productId}_UID${Date.now() % 10000}`;
+            document.getElementById('paymentForm').dataset.productId = productId;
+            document.getElementById('paymentForm').dataset.amount = amount;
+            new bootstrap.Modal(document.getElementById('paymentModal')).show();
+        }
+
+        async function submitPayment() {
+            const form = document.getElementById('paymentForm');
+            const productId = form.dataset.productId;
+            const amount = form.dataset.amount;
+            
+            if (!productId || !amount) {
+                alert('Lỗi: Dữ liệu không hợp lệ');
+                return;
+            }
+            
+            // Gửi directly to backend/my_bids.php bằng form submission
+            const formData = new FormData();
+            formData.append('confirm_pay', 'true');
+            formData.append('product_id', productId);
+            formData.append('amount', amount);
+            
+            try {
+                const response = await fetch('/backend/my_bids.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                
+                // Backend sẽ redirect hoặc hiện alert, nên ta tải lại dữ liệu
+                setTimeout(() => {
+                    loadBids();
+                    bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+                    alert('Đã gửi thông báo chuyển khoản. Vui lòng chờ admin duyệt.');
+                }, 500);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Lỗi khi gửi yêu cầu thanh toán.');
+            }
+        }
+
         // Khởi tạo
         loadBids();
     </script>
+
+    <!-- Modal Thanh Toán -->
+    <div class="modal fade" id="paymentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: #1a1a1a; border: 1px solid #d4af37;">
+                <div class="modal-header border-bottom border-warning">
+                    <h5 class="modal-title text-warning">Thông Tin Chuyển Khoản</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-light">
+                    <p class="text-muted mb-3">Vui lòng chuyển khoản cho sản phẩm: <strong id="modalProductName" class="text-white"></strong></p>
+                    
+                    <div class="p-3 mb-3" style="background: rgba(0,0,0,0.5); border: 1px dashed #d4af37; border-radius: 8px;">
+                        <div class="mb-2"><span class="text-muted">Ngân hàng:</span> <strong class="text-white float-end">VIETCOMBANK</strong></div>
+                        <div class="mb-2"><span class="text-muted">Chủ tài khoản:</span> <strong class="text-white float-end">NGUYEN VAN A</strong></div>
+                        <div class="mb-2"><span class="text-muted">Số tài khoản:</span> <strong class="text-warning float-end">0123456789</strong></div>
+                        <div class="mb-2"><span class="text-muted">Số tiền:</span> <strong id="modalAmount" class="text-danger float-end"></strong></div>
+                        <div><span class="text-muted">Nội dung CK:</span> <strong id="modalContent" class="text-info float-end"></strong></div>
+                    </div>
+                    
+                    <div class="alert alert-warning py-2" style="font-size: 0.85rem; background-color: rgba(243, 156, 18, 0.1); border-color: rgba(243, 156, 18, 0.3); color: #f39c12;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Sau khi chuyển khoản, bấm "Xác Nhận" để gửi yêu cầu cho admin duyệt.
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-warning">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-warning text-dark fw-bold" onclick="submitPayment()">Xác Nhận Đã Chuyển</button>
+                </div>
+                <form id="paymentForm" style="display: none;"></form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

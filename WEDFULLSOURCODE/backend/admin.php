@@ -210,6 +210,10 @@ if (isset($_GET['cancel_order'])) {
                     <h5 class="card-header-custom" style="color: #f39c12; border-bottom-color: #553a11;">
                         <i class="fa-solid fa-file-invoice-dollar"></i> Yêu Cầu Thanh Toán Đang Chờ
                     </h5>
+                    <div class="alert alert-dark text-warning border-warning mb-4">
+                        <strong>Thông tin chuyển khoản:</strong> Ngân hàng VIETCOMBANK | Chủ TK: NGUYEN VAN A | STK: 0123456789<br>
+                        <strong>Nội dung CK:</strong> CK_SP[ID sản phẩm]_UID[ID người dùng] để admin đối soát nhanh.
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-dark-custom mb-0">
                             <thead>
@@ -218,13 +222,14 @@ if (isset($_GET['cancel_order'])) {
                                     <th>Người mua</th>
                                     <th>Sản phẩm</th>
                                     <th class="text-danger">Số tiền</th>
+                                    <th>Nội dung CK</th>
                                     <th>Thời gian gửi</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                $sql_orders = "SELECT o.id, o.amount, o.created_at, u.username, u.full_name, p.name 
+                                $sql_orders = "SELECT o.id, o.amount, o.created_at, o.product_id, o.user_id, u.username, u.full_name, p.name 
                                                FROM orders o 
                                                JOIN users u ON o.user_id = u.id 
                                                JOIN products p ON o.product_id = p.id 
@@ -242,6 +247,7 @@ if (isset($_GET['cancel_order'])) {
                                               </td>";
                                         echo "<td><div style='max-width: 150px;' class='text-truncate' title='{$order['name']}'>{$order['name']}</div></td>";
                                         echo "<td class='text-danger fw-bold'>" . number_format($order['amount']) . " đ</td>";
+                                        echo "<td><small class='text-white'>CK_SP{$order['product_id']}_UID{$order['user_id']}</small></td>";
                                         echo "<td><small class='text-muted'>" . date("d/m H:i", strtotime($order['created_at'])) . "</small></td>";
                                         echo "<td>
                                                 <a href='admin.php?approve_order={$order['id']}' class='btn btn-success btn-sm me-1' onclick='return confirm(\"Xác nhận bạn ĐÃ NHẬN ĐƯỢC TIỀN từ tài khoản này?\")' title='Duyệt'><i class='fa-solid fa-check'></i></a>
@@ -250,7 +256,7 @@ if (isset($_GET['cancel_order'])) {
                                         echo "</tr>";
                                     }
                                 } else {
-                                    echo "<tr><td colspan='6' class='text-center text-muted py-4'>Hiện không có đơn hàng nào chờ duyệt.</td></tr>";
+                                    echo "<tr><td colspan='7' class='text-center text-muted py-4'>Hiện không có đơn hàng nào chờ duyệt.</td></tr>";
                                 }
                                 ?>
                             </tbody>

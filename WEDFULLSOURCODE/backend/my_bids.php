@@ -1,33 +1,52 @@
 <?php
 include 'db.php';
-require_once __DIR__ . '/domain/AuctionRules.php';
 checkLogin(); // Bắt buộc đăng nhập
 $user_id = $_SESSION['user_id'];
 
 // XỬ LÝ KHI NGƯỜI DÙNG XÁC NHẬN ĐÃ CHUYỂN KHOẢN
 if (isset($_POST['confirm_pay'])) {
     $p_id = (int)$_POST['product_id'];
-    $amount = $_POST['amount'];
-    
-    // Kiểm tra xem user này có phải người thắng không
-    $check_winner = mysqli_query($conn, "SELECT price FROM products WHERE id=$p_id");
-    $prod_info = mysqli_fetch_assoc($check_winner);
-    
-    // Kiểm tra xem đã tạo đơn hàng pending trước đó chưa (tránh spam click)
-    $check_order = mysqli_query($conn, "SELECT id FROM orders WHERE product_id=$p_id AND user_id=$user_id");
-    $paymentRule = evaluateConfirmPayment(
-        $prod_info['price'] ?? 0,
-        $amount,
-        mysqli_num_rows($check_order) > 0
-    );
+    $amount = (int)str_replace([',', '.'], '', $_POST['amount']);
 
-    if ($paymentRule['ok']) {
-        // TẠO ĐƠN HÀNG VỚI TRẠNG THÁI 'pending' (Chờ duyệt)
-        mysqli_query($conn, "INSERT INTO orders (user_id, product_id, amount, status) VALUES ($user_id, $p_id, $amount, 'pending')");
-        echo "<script>alert('Đã gửi thông báo chuyển khoản! Vui lòng chờ Admin duyệt.'); window.location='my_bids.php';</script>";
-    } elseif ($paymentRule['code'] === 'INVALID_AMOUNT') {
-        echo "<script>alert('Lỗi: Dữ liệu không hợp lệ.'); window.location='my_bids.php';</script>";
+    $check_winner = mysqli_query($conn, "SELECT p.price, p.end_time, p.is_paid, (SELECT MAX(bid_amount) FROM bids WHERE product_id = p.id) AS max_bid FROM products p WHERE p.id=$p_id");
+    $prod_info = mysqli_fetch_assoc($check_winner);
+    $now = date('Y-m-d H:i:s');
+
+    if (!$prod_info) {
+        echo "<script>alert('Lỗi: sản phẩm không hợp lệ.'); window.location='my_bids.php';</script>";
+        exit();
     }
+
+    if ($prod_info['is_paid'] == 1) {
+        echo "<script>alert('Sản phẩm này đã được thanh toán.'); window.location='my_bids.php';</script>";
+        exit();
+    }
+
+    if ($now < $prod_info['end_time']) {
+        echo "<script>alert('Phiên đấu giá chưa kết thúc. Vui lòng chờ còn lại.'); window.location='my_bids.php';</script>";
+        exit();
+    }
+
+    if ((int)$prod_info['price'] !== $amount || (int)$prod_info['price'] !== (int)$prod_info['max_bid']) {
+        echo "<script>alert('Lỗi: Bạn không phải người thắng hoặc số tiền không chính xác.'); window.location='my_bids.php';</script>";
+        exit();
+    }
+
+    $check_order = mysqli_query($conn, "SELECT status FROM orders WHERE product_id=$p_id AND user_id=$user_id ORDER BY id DESC LIMIT 1");
+    if (mysqli_num_rows($check_order) > 0) {
+        $order = mysqli_fetch_assoc($check_order);
+        if ($order['status'] === 'pending') {
+            echo "<script>alert('Bạn đã gửi yêu cầu chuyển khoản và đang chờ admin duyệt.'); window.location='my_bids.php';</script>";
+            exit();
+        }
+        if ($order['status'] === 'paid') {
+            echo "<script>alert('Đơn hàng này đã được thanh toán trước đó.'); window.location='my_bids.php';</script>";
+            exit();
+        }
+    }
+
+    mysqli_query($conn, "INSERT INTO orders (user_id, product_id, amount, status) VALUES ($user_id, $p_id, $amount, 'pending')");
+    echo "<script>alert('Đã gửi thông báo chuyển khoản! Vui lòng chờ Admin duyệt.'); window.location='my_bids.php';</script>";
 }
 ?>
 
@@ -123,9 +142,10 @@ if (isset($_POST['confirm_pay'])) {
                     </thead>
                     <tbody>
                         <?php
-                        // Cập nhật câu lệnh SQL: Kéo thêm cột 'status' từ bảng orders để biết đơn hàng đang ở trạng thái nào
+                        // Cập nhật câu lệnh SQL: Kéo thêm cột order_id và order_status từ bảng orders để biết đơn hàng đang ở trạng thái nào
                         $sql = "SELECT b.*, p.name, p.image, p.price as current_price, p.end_time, p.is_paid, 
-                                       (SELECT status FROM orders WHERE product_id = p.id AND user_id = $user_id LIMIT 1) as order_status 
+                                       (SELECT id FROM orders WHERE product_id = p.id AND user_id = $user_id ORDER BY id DESC LIMIT 1) as order_id,
+                                       (SELECT status FROM orders WHERE product_id = p.id AND user_id = $user_id ORDER BY id DESC LIMIT 1) as order_status 
                                 FROM bids b 
                                 JOIN products p ON b.product_id = p.id 
                                 WHERE b.user_id = $user_id 
@@ -145,30 +165,30 @@ if (isset($_POST['confirm_pay'])) {
                                 
                                 $status_html = "";
                                 $action_html = "";
+                                $payment_note = 'CK_SP' . $row['product_id'] . '_UID' . $user_id;
 
                                 if ($my_bid < $curr_price) {
                                     $status_html = "<span class='status-badge badge-fail'>Bị vượt giá</span>";
                                     $action_html = "<span class='text-muted small'>-</span>";
                                 } else {
                                     if ($now > $end_time) {
-                                        // KIỂM TRA TRẠNG THÁI THANH TOÁN MỚI
                                         if ($is_paid == 1 || $order_status == 'paid') {
                                             $status_html = "<span class='status-badge badge-paid'>Đã thanh toán</span>";
                                             $action_html = "<span class='text-success small'><i class='fa-solid fa-check'></i> Xong</span>";
                                         } elseif ($order_status == 'pending') {
-                                            $status_html = "<span class='status-badge badge-pending'>Đang xử lý</span>";
-                                            $action_html = "<span class='text-warning small'><i class='fa-solid fa-spinner fa-spin'></i> Chờ duyệt</span>";
+                                            $status_html = "<span class='status-badge badge-pending'>Đang chờ xử lý</span>";
+                                            $action_html = "<div class='small text-warning mb-2'><i class='fa-solid fa-spinner fa-spin'></i> Chờ admin duyệt</div>";
+                                            $action_html .= "<div class='small text-white'>Ngân hàng: VIETCOMBANK<br>STK: 0123456789<br>Nội dung CK: <strong>$payment_note</strong></div>";
                                         } else {
                                             $status_html = "<span class='status-badge badge-won'>CHIẾN THẮNG</span>";
-                                            // Gọi function mở Modal thay vì điều hướng URL
                                             $action_html = "<button onclick='openBankModal({$row['product_id']}, {$my_bid}, \"".htmlspecialchars($row['name'])."\")' class='btn btn-pay-gold'>THANH TOÁN</button>";
+                                            $action_html .= "<div class='small text-white mt-2'>Ngân hàng: VIETCOMBANK<br>STK: 0123456789<br>Nội dung CK: <strong>$payment_note</strong></div>";
                                         }
                                     } else {
                                         $status_html = "<span class='status-badge badge-lead'>Đang dẫn đầu</span>";
                                         $action_html = "<span class='text-muted small'>...</span>";
                                     }
                                 }
-
                                 echo "<tr>";
                                 echo "<td>" . date("H:i d/m", strtotime($row['bid_time'])) . "</td>";
                                 echo "<td>
@@ -269,14 +289,16 @@ if (isset($_POST['confirm_pay'])) {
         }, 1000);
 
         // SCRIPT MỞ BẢNG THANH TOÁN (MODAL)
+        const USER_ID = <?php echo json_encode($user_id); ?>;
+
         function openBankModal(id, amount, name) {
             document.getElementById('bProductId').value = id;
             document.getElementById('bAmount').value = amount;
             document.getElementById('bProductName').innerText = name;
             
             // Format số tiền và nội dung chuyển khoản tự động
-            document.getElementById('bAmountShow').innerText = new Intl.NumberFormat('de-DE').format(amount) + ' VNĐ';
-            document.getElementById('bContentShow').innerText = 'THANHTOAN SP' + id;
+            document.getElementById('bAmountShow').innerText = new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
+            document.getElementById('bContentShow').innerText = 'CK_SP' + id + '_UID' + USER_ID;
             
             new bootstrap.Modal(document.getElementById('bankModal')).show();
         }
