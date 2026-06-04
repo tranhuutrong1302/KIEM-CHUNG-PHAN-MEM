@@ -1,9 +1,9 @@
 <?php
 session_start(); // Khởi động session cho toàn bộ web
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "dau_gia";
+$servername = getenv('DB_HOST') ?: getenv('TEST_DB_HOST') ?: 'localhost';
+$username = getenv('DB_USER') ?: getenv('TEST_DB_USER') ?: 'root';
+$password = getenv('DB_PASSWORD') ?: getenv('TEST_DB_PASSWORD') ?: '';
+$dbname = getenv('DB_NAME') ?: getenv('TEST_DB_NAME') ?: 'dau_gia';
 
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 date_default_timezone_set('Asia/Ho_Chi_Minh'); // Set múi giờ Việt Nam

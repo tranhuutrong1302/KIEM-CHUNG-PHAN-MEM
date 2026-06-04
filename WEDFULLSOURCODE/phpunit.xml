@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true" stopOnFailure="false">
+  <testsuites>
+    <testsuite name="Auction Backend Tests">
+      <directory suffix="Test.php">tests</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="display_errors" value="1"/>
+    <env name="TEST_DB_HOST" value="localhost"/>
+    <env name="TEST_DB_USER" value="root"/>
+    <env name="TEST_DB_PASSWORD" value=""/>
+    <env name="TEST_DB_NAME" value="dau_gia"/>
+  </php>
+</phpunit>

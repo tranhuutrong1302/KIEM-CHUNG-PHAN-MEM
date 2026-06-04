@@ -1,0 +1,15 @@
+{
+  "name": "daugia/tests",
+  "description": "Unit và integration tests cho hệ thống đấu giá.",
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}
