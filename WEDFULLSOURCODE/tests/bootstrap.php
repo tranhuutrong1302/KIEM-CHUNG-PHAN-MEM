@@ -28,6 +28,14 @@ if (file_exists(__DIR__ . '/../backend/config/db.php')) {
 
 require_once __DIR__ . '/../backend/api/ApiHelper.php';
 
+if (file_exists(__DIR__ . '/../backend/domain/AuctionRules.php')) {
+    require_once __DIR__ . '/../backend/domain/AuctionRules.php';
+}
+
+if (file_exists(__DIR__ . '/../backend/api/BidHandler.php')) {
+    require_once __DIR__ . '/../backend/api/BidHandler.php';
+}
+
 function skipIfNoDatabase(?mysqli $conn): void
 {
     if (!$conn || $conn->connect_errno !== 0) {

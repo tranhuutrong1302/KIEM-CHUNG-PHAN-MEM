@@ -1,8 +1,9 @@
 {
-  "name": "daugia/tests",
-  "description": "Unit và integration tests cho hệ thống đấu giá.",
+  "name": "royal-bid/wedfullsourcecode",
+  "description": "Unit and integration tests for Royal Bid backend rules",
+  "type": "project",
   "require-dev": {
-    "phpunit/phpunit": "^10.0"
+    "phpunit/phpunit": "^10.5"
   },
   "autoload": {
     "psr-4": {

@@ -1,0 +1,7 @@
+vendor/
+node_modules/
+.phpunit.cache/
+test-results/
+.phpunit.result.cache
+.env
+uploads/

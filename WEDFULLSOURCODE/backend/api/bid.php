@@ -1,6 +1,6 @@
 <?php
 include __DIR__ . '/../config/db.php';
-include __DIR__ . '/ApiHelper.php';
+require_once __DIR__ . '/BidHandler.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -14,6 +14,25 @@ if (!is_array($input)) {
     $input = [];
 }
 
-$response = processBidRequest($conn, $input, $_SESSION);
-http_response_code($response['code']);
-echo json_encode(['success' => $response['success'], 'message' => $response['message']]);
+$result = handleBid(
+    $input,
+    $_SESSION,
+    function (int $productId) use ($conn): ?array {
+        $query = mysqli_query($conn, "SELECT * FROM products WHERE id=$productId");
+        if (!$query) {
+            return null;
+        }
+
+        $product = mysqli_fetch_assoc($query);
+        return is_array($product) ? $product : null;
+    },
+    function (int $userId, int $productId, int $bidAmount) use ($conn): bool {
+        $updated = mysqli_query($conn, "UPDATE products SET price=$bidAmount WHERE id=$productId");
+        $inserted = mysqli_query($conn, "INSERT INTO bids (user_id, product_id, bid_amount) VALUES ($userId, $productId, $bidAmount)");
+        return (bool)$updated && (bool)$inserted;
+    },
+    date('Y-m-d H:i:s')
+);
+
+http_response_code($result['status']);
+echo json_encode($result['body']);

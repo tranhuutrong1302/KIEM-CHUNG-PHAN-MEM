@@ -1,5 +1,6 @@
 <?php
 include 'db.php';
+require_once __DIR__ . '/domain/AuctionRules.php';
 checkLogin(); // Bắt buộc đăng nhập
 $user_id = $_SESSION['user_id'];
 
@@ -12,15 +13,19 @@ if (isset($_POST['confirm_pay'])) {
     $check_winner = mysqli_query($conn, "SELECT price FROM products WHERE id=$p_id");
     $prod_info = mysqli_fetch_assoc($check_winner);
     
-    if ($prod_info['price'] == $amount) {
-        // Kiểm tra xem đã tạo đơn hàng pending trước đó chưa (tránh spam click)
-        $check_order = mysqli_query($conn, "SELECT id FROM orders WHERE product_id=$p_id AND user_id=$user_id");
-        if (mysqli_num_rows($check_order) == 0) {
-            // TẠO ĐƠN HÀNG VỚI TRẠNG THÁI 'pending' (Chờ duyệt)
-            mysqli_query($conn, "INSERT INTO orders (user_id, product_id, amount, status) VALUES ($user_id, $p_id, $amount, 'pending')");
-            echo "<script>alert('Đã gửi thông báo chuyển khoản! Vui lòng chờ Admin duyệt.'); window.location='my_bids.php';</script>";
-        }
-    } else {
+    // Kiểm tra xem đã tạo đơn hàng pending trước đó chưa (tránh spam click)
+    $check_order = mysqli_query($conn, "SELECT id FROM orders WHERE product_id=$p_id AND user_id=$user_id");
+    $paymentRule = evaluateConfirmPayment(
+        $prod_info['price'] ?? 0,
+        $amount,
+        mysqli_num_rows($check_order) > 0
+    );
+
+    if ($paymentRule['ok']) {
+        // TẠO ĐƠN HÀNG VỚI TRẠNG THÁI 'pending' (Chờ duyệt)
+        mysqli_query($conn, "INSERT INTO orders (user_id, product_id, amount, status) VALUES ($user_id, $p_id, $amount, 'pending')");
+        echo "<script>alert('Đã gửi thông báo chuyển khoản! Vui lòng chờ Admin duyệt.'); window.location='my_bids.php';</script>";
+    } elseif ($paymentRule['code'] === 'INVALID_AMOUNT') {
         echo "<script>alert('Lỗi: Dữ liệu không hợp lệ.'); window.location='my_bids.php';</script>";
     }
 }

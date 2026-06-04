@@ -1,5 +1,6 @@
 <?php
 include 'config/db.php';
+require_once __DIR__ . '/domain/AuctionRules.php';
 
 // =========================================================================
 // PHẦN 1: XỬ LÝ LOGIC NGHIỆP VỤ (BUSINESS LOGIC)
@@ -17,11 +18,10 @@ if (isset($_POST['submit_bid'])) {
     $user_id = $_SESSION['user_id'];
 
     $prod = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM products WHERE id=$prod_id"));
-    
-    if (date("Y-m-d H:i:s") > $prod['end_time']) {
-        echo "<script>alert('Phiên đấu giá đã kết thúc!');</script>";
-    } elseif ($bid_amount < ($prod['price'] + $prod['min_increment'])) {
-        echo "<script>alert('Giá đấu phải cao hơn mức hiện tại + bước giá!');</script>";
+    $bidRule = validateBid($prod, (int)$bid_amount, date("Y-m-d H:i:s"));
+
+    if (!$bidRule['ok']) {
+        echo "<script>alert('" . $bidRule['message'] . "!');</script>";
     } else {
         // Cập nhật giá mới & Lưu lịch sử
         mysqli_query($conn, "UPDATE products SET price = $bid_amount WHERE id=$prod_id");
@@ -29,17 +29,6 @@ if (isset($_POST['submit_bid'])) {
         echo "<script>alert('Đấu giá thành công!'); window.location='index.php';</script>";
         exit(); // Dừng thực thi sau khi chuyển hướng
     }
-}
-
-// Hàm xác định danh mục
-function getCategory($row) {
-    if (!empty($row['category']) && $row['category'] != 'Khác') return $row['category'];
-    $n = mb_strtolower($row['name']);
-    if (strpos($n, 'biển') !== false || strpos($n, '30a') !== false) return 'Biển số';
-    if (strpos($n, 'nhẫn') !== false || strpos($n, 'dây') !== false || strpos($n, 'kim cương') !== false || strpos($n, 'đá quý') !== false || strpos($n, 'vòng') !== false) return 'Trang sức';
-    if (strpos($n, 'đồng hồ') !== false || strpos($n, 'patek') !== false || strpos($n, 'richard') !== false || strpos($n, 'rolex') !== false) return 'Đồng hồ';
-    if (strpos($n, 'biệt thự') !== false || strpos($n, 'penthouse') !== false || strpos($n, 'đất') !== false) return 'Bất động sản';
-    return 'Xe sang'; 
 }
 
 // =========================================================================
@@ -56,7 +45,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     // Đóng gói các giá trị tính toán vào mảng row
     $row['is_expired'] = ($now > $row['end_time']);
     $row['next_min'] = $row['price'] + $row['min_increment'];
-    $row['category_name'] = getCategory($row);
+    $row['category_name'] = resolveCategory($row);
     $row['bid_count'] = $count_query['t'];
     $row['end_time_js'] = strtotime($row['end_time']) * 1000;
     
