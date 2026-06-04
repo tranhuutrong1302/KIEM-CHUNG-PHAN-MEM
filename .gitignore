@@ -1,8 +1,39 @@
+# Dependencies
 vendor/
+**/vendor/
 node_modules/
-.phpunit.cache/
-test-results/
-.phpunit.result.cache
-.env
-uploads/
+**/node_modules/
+
+# Composer
 composer.lock
+
+# PHPUnit and test output
+.phpunit.result.cache
+.phpunit.cache/
+**/.phpunit.cache/
+test-results/
+**/test-results/
+coverage/
+**/coverage/
+
+# Runtime/cache files
+*.log
+*.cache
+cache/
+tmp/
+temp/
+
+# Environment/local config
+.env
+.env.*
+!.env.example
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
