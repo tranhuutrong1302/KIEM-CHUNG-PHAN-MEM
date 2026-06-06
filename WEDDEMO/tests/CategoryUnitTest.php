@@ -58,5 +58,55 @@ class CategoryUnitTest extends TestCase {
         // 3. ASSERT (Kỳ vọng trả về 'Xe sang' vì code của bạn để nó làm mặc định ở dòng cuối)
         $this->assertEquals('Xe sang', $result);
     }
+
+    /**
+     * Kịch bản 4: Đoán đúng danh mục "Biển số" dựa vào từ khóa
+     */
+    public function testGetCategoryReturnsBiểnSố() {
+        $fakeRow1 = ['category' => '', 'name' => 'Biển số ngũ quý 9 cực độc'];
+        $fakeRow2 = ['category' => 'Khác', 'name' => 'Xe máy biển kiểm soát 30A-99999'];
+
+        $this->assertEquals('Biển số', getCategory($fakeRow1));
+        $this->assertEquals('Biển số', getCategory($fakeRow2));
+    }
+
+    /**
+     * Kịch bản 5: Đoán đúng danh mục "Bất động sản" dựa vào từ khóa
+     */
+    public function testGetCategoryReturnsBấtĐộngSản() {
+        $fakeRow1 = ['category' => '', 'name' => 'Biệt thự nghỉ dưỡng view biển'];
+        $fakeRow2 = ['category' => 'Khác', 'name' => 'Căn hộ Penthouse cao cấp'];
+        $fakeRow3 = ['category' => '', 'name' => 'Lô đất nền thổ cư'];
+
+        $this->assertEquals('Bất động sản', getCategory($fakeRow1));
+        $this->assertEquals('Bất động sản', getCategory($fakeRow2));
+        $this->assertEquals('Bất động sản', getCategory($fakeRow3));
+    }
+
+    /**
+     * Kịch bản 6: Tính năng không phân biệt chữ hoa/chữ thường (Case-insensitivity)
+     */
+    public function testGetCategoryCaseInsensitive() {
+        $fakeRow1 = ['category' => '', 'name' => 'NHẪN KIM CƯƠNG PNJ'];
+        $fakeRow2 = ['category' => '', 'name' => 'ĐỒNG HỒ ROLEX DATEJUST'];
+        $fakeRow3 = ['category' => '', 'name' => 'BIỆT THỰ VINHOMES'];
+
+        $this->assertEquals('Trang sức', getCategory($fakeRow1));
+        $this->assertEquals('Đồng hồ', getCategory($fakeRow2));
+        $this->assertEquals('Bất động sản', getCategory($fakeRow3));
+    }
+
+    /**
+     * Kịch bản 7: Trả về category được cung cấp sẵn nếu nó khác trống và khác "Khác"
+     */
+    public function testGetCategoryReturnsCategoryWhenProvided() {
+        // Mặc dù tên là nhẫn kim cương (thuộc Trang sức), nhưng danh mục đi kèm là "Bất động sản" (khác trống và khác Khác)
+        $fakeRow = [
+            'category' => 'Bất động sản',
+            'name' => 'Nhẫn kim cương cao cấp'
+        ];
+
+        $this->assertEquals('Bất động sản', getCategory($fakeRow));
+    }
 }
 ?>

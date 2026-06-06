@@ -6,7 +6,7 @@
     },
     "autoload": {
         "classmap": [
-            "WED/config"
+            "WEDDEMO/config"
         ]
     }
 }
