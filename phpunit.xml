@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
- <phpunit colors="true">
+ <phpunit colors="true" bootstrap="WEDFULLSOURCODE/tests/bootstrap.php">
      <testsuites>
          <testsuite name="Nhom_Kiem_Chung">
-             <directory>WEDDEMO/tests</directory>
+             <directory>WEDFULLSOURCODE/tests</directory>
          </testsuite>
     </testsuites>
  </phpunit>

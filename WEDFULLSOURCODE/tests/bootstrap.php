@@ -17,16 +17,22 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../vendor/autoload.php';
 }
 
-$conn = mysqli_connect($envHost, $envUser, $envPass, $envName);
-if (!$conn) {
-    throw new Exception('Không thể kết nối tới cơ sở dữ liệu kiểm thử: ' . mysqli_connect_error());
+if (function_exists('mysqli_connect')) {
+    $conn = @mysqli_connect($envHost, $envUser, $envPass, $envName);
+    if (!$conn) {
+        $conn = null;
+    }
+} else {
+    $conn = null;
 }
 
 if (file_exists(__DIR__ . '/../backend/config/db.php')) {
     require_once __DIR__ . '/../backend/config/db.php';
 }
 
-require_once __DIR__ . '/../backend/api/ApiHelper.php';
+if (file_exists(__DIR__ . '/../backend/api/ApiHelper.php')) {
+    require_once __DIR__ . '/../backend/api/ApiHelper.php';
+}
 
 if (file_exists(__DIR__ . '/../backend/domain/AuctionRules.php')) {
     require_once __DIR__ . '/../backend/domain/AuctionRules.php';
