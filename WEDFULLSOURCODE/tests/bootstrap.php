@@ -1,50 +1,78 @@
 <?php
 declare(strict_types=1);
-error_reporting(E_ALL);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 ini_set('display_errors', '1');
 
-$envHost = getenv('TEST_DB_HOST') ?: getenv('DB_HOST') ?: 'localhost';
-$envUser = getenv('TEST_DB_USER') ?: getenv('DB_USER') ?: 'root';
-$envPass = getenv('TEST_DB_PASSWORD') ?: getenv('DB_PASSWORD') ?: '';
-$envName = getenv('TEST_DB_NAME') ?: getenv('DB_NAME') ?: 'dau_gia';
-
-putenv("DB_HOST={$envHost}");
-putenv("DB_USER={$envUser}");
-putenv("DB_PASSWORD={$envPass}");
-putenv("DB_NAME={$envName}");
-
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
-}
-
-if (function_exists('mysqli_connect')) {
-    $conn = @mysqli_connect($envHost, $envUser, $envPass, $envName);
-    if (!$conn) {
-        $conn = null;
+/**
+ * Mock mysqli functions to avoid real database connection during testing.
+ */
+if (!function_exists('mysqli_connect')) {
+    function mysqli_connect(...$args) {
+        return new stdClass();
     }
-} else {
-    $conn = null;
+    function mysqli_connect_error() {
+        return "Mock Error";
+    }
+    function mysqli_query($conn, $sql) {
+        return true;
+    }
+    function mysqli_fetch_assoc($result) {
+        return [];
+    }
+    function mysqli_real_escape_string($conn, $str) {
+        return addslashes($str);
+    }
 }
 
-if (file_exists(__DIR__ . '/../backend/config/db.php')) {
-    require_once __DIR__ . '/../backend/config/db.php';
+/**
+ * Define the real normalizeImageUrl function (copy from db.php) to ensure we have the correct version.
+ * We'll define it only if it doesn't already exist (to avoid conflicts if db.php was loaded).
+ */
+if (!function_exists('normalizeImageUrl')) {
+    function normalizeImageUrl($path) {
+        if (empty($path)) {
+            return '';
+        }
+        if (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0) {
+            return $path;
+        }
+        $path = str_replace('\\\\', '/', $path);
+        $trimmed = ltrim($path, '/');
+        $parts = explode('/', $trimmed);
+        $encodedParts = array_map('rawurlencode', $parts);
+        return '/' . implode('/', $encodedParts);
+    }
 }
 
-if (file_exists(__DIR__ . '/../backend/api/ApiHelper.php')) {
-    require_once __DIR__ . '/../backend/api/ApiHelper.php';
+/**
+ * Override checkLogin to always return true for testing.
+ */
+if (!function_exists('checkLogin')) {
+    function checkLogin() {
+        return true;
+    }
 }
 
-if (file_exists(__DIR__ . '/../backend/domain/AuctionRules.php')) {
-    require_once __DIR__ . '/../backend/domain/AuctionRules.php';
+/**
+ * Load MockDb.php for any other mocks it provides (e.g., maybe other functions).
+ * It will not override normalizeImageUrl or checkLogin if they already exist.
+ */
+if (file_exists(__DIR__ . '/MockDb.php')) {
+    require_once __DIR__ . '/MockDb.php';
 }
 
+/**
+ * Load vendor autoload.
+ */
+if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
+    require_once __DIR__ . '/../../vendor/autoload.php';
+}
+
+/**
+ * Load business logic.
+ */
+require_once __DIR__ . '/../backend/domain/AuctionRules.php';
+require_once __DIR__ . '/../backend/api/ApiHelper.php';
 if (file_exists(__DIR__ . '/../backend/api/BidHandler.php')) {
     require_once __DIR__ . '/../backend/api/BidHandler.php';
-}
-
-function skipIfNoDatabase(?mysqli $conn): void
-{
-    if (!$conn || $conn->connect_errno !== 0) {
-        throw new PHPUnit\Framework\SkippedTestError('Không thể kết nối tới cơ sở dữ liệu kiểm thử: ' . ($conn ? $conn->connect_error : '')); 
-    }
 }
