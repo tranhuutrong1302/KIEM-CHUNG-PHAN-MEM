@@ -43,8 +43,17 @@ function resolveCategory(array $row): string
     return 'Xe sang';
 }
 
-function validateBid(array $product, int $bidAmount, string $now): array
+function validateBid(?array $product, int $bidAmount, string $now): array
 {
+    if ($product === null) {
+        return [
+            'ok' => false,
+            'code' => 'PRODUCT_NOT_FOUND',
+            'message' => 'Sản phẩm không tồn tại',
+            'min_required' => null,
+        ];
+    }
+
     if ($now > (string)$product['end_time']) {
         return [
             'ok' => false,
@@ -59,7 +68,7 @@ function validateBid(array $product, int $bidAmount, string $now): array
         return [
             'ok' => false,
             'code' => 'BID_TOO_LOW',
-            'message' => 'Giá đấu phải cao hơn mức hiện tại + bước giá',
+            'message' => 'Giá đấu phải cao hơn mức hiện tại + bước giá (tối thiểu là ' . number_format($minRequired) . ' đ)',
             'min_required' => $minRequired,
         ];
     }

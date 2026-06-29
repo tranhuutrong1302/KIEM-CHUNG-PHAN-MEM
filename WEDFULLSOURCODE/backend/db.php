@@ -27,7 +27,15 @@ function normalizeImageUrl($path) {
 // Hàm kiểm tra đăng nhập
 function checkLogin() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: login.php");
+        header("Location: ../frontend/login.html");
+        exit();
+    }
+}
+
+// Hàm kiểm tra đăng nhập Admin
+function checkAdminLogin() {
+    if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+        header("Location: ../frontend/login.html"); // Chuyển hướng về trang đăng nhập nếu không phải admin
         exit();
     }
 }

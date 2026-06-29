@@ -1,6 +1,8 @@
 <?php
 include 'db.php';
 
+checkAdminLogin(); // Bắt buộc đăng nhập với quyền admin
+
 // 1. Xử lý XÓA SẢN PHẨM
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];

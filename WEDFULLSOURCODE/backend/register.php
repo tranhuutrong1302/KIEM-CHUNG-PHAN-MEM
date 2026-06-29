@@ -27,7 +27,7 @@ if (isset($_POST['btn_register'])) {
                 VALUES ('$user', '$pass', '$name', '$email', 'user')";
         
         if (mysqli_query($conn, $sql)) {
-            header("Location: login.php?u=$user"); 
+            header("Location: ../frontend/login.html?u=$user"); 
             exit();
         } else {
             $mess = "Lỗi hệ thống: " . mysqli_error($conn);
