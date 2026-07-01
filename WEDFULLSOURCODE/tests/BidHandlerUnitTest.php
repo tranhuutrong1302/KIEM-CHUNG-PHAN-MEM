@@ -91,4 +91,25 @@ class BidHandlerUnitTest extends TestCase
         $this->assertSame('Đấu giá thành công', $result['body']['message']);
         $this->assertSame([1, 10, 1200000], $savedArgs);
     }
+
+    public function testRejectsWhenSaveFails(): void
+    {
+        $product = [
+            'price' => 1000000,
+            'min_increment' => 100000,
+            'end_time' => '2026-06-30 10:00:00',
+        ];
+
+        $result = handleBid(
+            ['product_id' => 10, 'bid_amount' => 1200000],
+            ['user_id' => 1],
+            fn () => $product,
+            fn () => false,
+            '2026-06-01 10:00:00'
+        );
+
+        $this->assertSame(500, $result['status']);
+        $this->assertFalse($result['body']['success']);
+        $this->assertSame('Không thể lưu dữ liệu đặt giá', $result['body']['message']);
+    }
 }

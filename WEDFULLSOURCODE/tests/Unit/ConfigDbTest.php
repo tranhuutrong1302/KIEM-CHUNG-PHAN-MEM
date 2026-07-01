@@ -15,4 +15,14 @@ final class ConfigDbTest extends TestCase
     {
         $this->assertSame('https://example.com/image.png', normalizeImageUrl('https://example.com/image.png'));
     }
+
+    public function testNormalizeImageUrlHandlesEmptyPath(): void
+    {
+        $this->assertSame('', normalizeImageUrl(''));
+    }
+
+    public function testNormalizeImageUrlConvertsBackslash(): void
+    {
+        $this->assertSame('/uploads/image.jpg', normalizeImageUrl('uploads\\image.jpg'));
+    }
 }

@@ -33,4 +33,22 @@ class CategoryUnitTest extends TestCase
         $row = ['name' => '', 'category' => 'Khác'];
         $this->assertSame('Xe sang', resolveCategory($row));
     }
+
+    public function testDetectsBatDongSan(): void
+    {
+        $row = ['name' => 'Biệt thự biển Vũng Tàu', 'category' => 'Khác'];
+        $this->assertSame('Bất động sản', resolveCategory($row));
+    }
+
+    public function testDetectsBatDongSanWithPenthouse(): void
+    {
+        $row = ['name' => 'Penthouse quận 1', 'category' => ''];
+        $this->assertSame('Bất động sản', resolveCategory($row));
+    }
+
+    public function testIgnoresCategoryWhenValueIsKhac(): void
+    {
+        $row = ['name' => 'Đồng hồ Rolex', 'category' => 'Khác'];
+        $this->assertSame('Đồng hồ', resolveCategory($row));
+    }
 }
