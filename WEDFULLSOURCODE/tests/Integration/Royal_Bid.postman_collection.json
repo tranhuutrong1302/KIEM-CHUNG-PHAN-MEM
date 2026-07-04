@@ -1,0 +1,1428 @@
+{
+  "info": {
+    "_postman_id": "b2f1454d-89ea-420b-9556-0901fa60f130",
+    "name": "Royal Bid - WED Full Test",
+    "description": "Test đầy đủ cho project Royal Bid PHP/XAMPP.  \nImport cùng file RoyalBid.local.postman_environment.json.  \nBật Apache + MySQL, copy WED vào D:\\\\Xampp\\\\htdocs\\\\WED.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55319739",
+    "_collection_link": "https://go.postman.co/collection/55319739-b2f1454d-89ea-420b-9556-0901fa60f130?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00 - Health Check",
+      "item": [
+        {
+          "name": "00.1 - Ket noi MySQL (test_db.php)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[00.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[00.1] Khong co loi PHP Fatal/Parse', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[00.1] Ket noi database thanh cong', function () {",
+                  "    pm.expect(body).to.include('K\\u1ebft n\\u1ed1i database th\\u00e0nh c\\u00f4ng');",
+                  "});",
+                  "",
+                  "pm.test('[00.1] Co so luong san pham tu DB', function () {",
+                  "    var match = body.match(/S\\u1ed1 s\\u1ea3n ph\\u1ea9m trong DB:\\s*(\\d+)/);",
+                  "    pm.expect(match).to.not.be.null;",
+                  "    if (match) {",
+                  "        pm.environment.set('product_count', match[1]);",
+                  "        console.log('San pham trong DB:', match[1]);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/test_db.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test_db.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "00.2 - Trang chu load san pham",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[00.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[00.2] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[00.2] Trang chu Royal Bid hien thi', function () {",
+                  "    pm.expect(body).to.include('ROYAL BID');",
+                  "    pm.expect(body).to.include('TIN \\u0110\\u1ea4U GI\\u00c1 N\\u1ed4I B\\u1eacT');",
+                  "});",
+                  "",
+                  "pm.test('[00.2] Co danh sach san pham hoac thong bao', function () {",
+                  "    var coSanPham = body.includes('openBidModal') || body.includes('\\u0110\\u00c3 K\\u1ebeT TH\\u00daC');",
+                  "    pm.expect(coSanPham).to.eql(true);",
+                  "});",
+                  "",
+                  "// Tu dong lay product_id dau tien con han",
+                  "var matchProd = body.match(/openBidModal\\('(\\d+)'/);",
+                  "if (matchProd) {",
+                  "    pm.environment.set('product_id', matchProd[1]);",
+                  "    console.log('Tim thay product_id:', matchProd[1]);",
+                  "} else {",
+                  "    console.log('Khong co san pham con han - su dung product_id mac dinh');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 - Trang cong khai (GET)",
+      "item": [
+        {
+          "name": "01.1 - GET Form dang nhap",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[01.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[01.1] Tieu de trang dang nhap', function () {",
+                  "    pm.expect(body).to.include('\\u0110\\u0102NG NH\\u1eacP');",
+                  "});",
+                  "",
+                  "pm.test('[01.1] Co du cac field trong form', function () {",
+                  "    pm.expect(body).to.include('name=\"username\"');",
+                  "    pm.expect(body).to.include('name=\"password\"');",
+                  "    pm.expect(body).to.include('name=\"btn_login\"');",
+                  "});",
+                  "",
+                  "pm.test('[01.1] Co nut Truy Cap', function () {",
+                  "    pm.expect(body).to.include('Truy C\\u1eadp');",
+                  "});",
+                  "",
+                  "pm.test('[01.1] Co link den trang dang ky', function () {",
+                  "    pm.expect(body).to.include('register.php');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.2 - GET Form dang ky",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[01.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[01.2] Tieu de trang dang ky', function () {",
+                  "    pm.expect(body).to.include('\\u0110\\u0102NG K\\u00dd');",
+                  "});",
+                  "",
+                  "pm.test('[01.2] Co du cac field trong form', function () {",
+                  "    pm.expect(body).to.include('name=\"username\"');",
+                  "    pm.expect(body).to.include('name=\"password\"');",
+                  "    pm.expect(body).to.include('name=\"full_name\"');",
+                  "    pm.expect(body).to.include('name=\"btn_register\"');",
+                  "});",
+                  "",
+                  "pm.test('[01.2] Co link den trang dang nhap', function () {",
+                  "    pm.expect(body).to.include('login.php');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/register.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "register.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.3 - GET Login auto-fill qua URL (?u=&p=)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[01.3] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[01.3] Username duoc dien san tu URL', function () {",
+                  "    pm.expect(body).to.include('value=\"demo_user\"');",
+                  "});",
+                  "",
+                  "pm.test('[01.3] Password duoc dien san tu URL', function () {",
+                  "    pm.expect(body).to.include('value=\"demo_pass\"');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/login.php?u=demo_user&p=demo_pass",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login.php"
+              ],
+              "query": [
+                {
+                  "key": "u",
+                  "value": "demo_user"
+                },
+                {
+                  "key": "p",
+                  "value": "demo_pass"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.4 - GET Admin dashboard (cong khai)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[01.4] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[01.4] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[01.4] Admin panel render day du', function () {",
+                  "    pm.expect(body).to.include('ROYAL ADMIN');",
+                  "    pm.expect(body).to.include('\\u0110\\u0103ng T\\u00e0i S\\u1ea3n M\\u1edbi');",
+                  "    pm.expect(body).to.include('Danh S\\u00e1ch Th\\u00e0nh Vi\\u00ean');",
+                  "    pm.expect(body).to.include('Y\\u00eau C\\u1ea7u Thanh To\\u00e1n');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Bao ve session (chua dang nhap)",
+      "item": [
+        {
+          "name": "02.1 - my_bids chua login -> phai chuyen ve login",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Xoa cookie de dam bao chua co session",
+                  "pm.cookieJar().clear(pm.variables.replaceIn('{{base_url}}'), function(err) {",
+                  "    if (err) { console.log('Clear cookie error:', err); }",
+                  "    else { console.log('Cookie cleared'); }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "var code = pm.response.code;",
+                  "",
+                  "pm.test('[02.1] Chua login thi bi chay ve trang login', function () {",
+                  "    var chuyenVeLogin = body.includes('\\u0110\\u0102NG NH\\u1eacP') && body.includes('btn_login');",
+                  "    var redirect302  = (code === 302);",
+                  "    pm.expect(chuyenVeLogin || redirect302).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_bids.php"
+              ]
+            },
+            "description": "Chay request nay TRUOC khi dang nhap. Neu Postman dang giu cookie session cu, xoa cookie trong Cookies Manager truoc."
+          },
+          "response": []
+        },
+        {
+          "name": "02.2 - Dat gia chua login -> yeu cau dang nhap",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[02.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[02.2] Yeu cau dang nhap truoc khi dat gia', function () {",
+                  "    var coYeuCauLogin = body.includes('\\u0111\\u0103ng nh\\u1eadp') || body.includes('login.php');",
+                  "    pm.expect(coYeuCauLogin).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "bid_amount",
+                  "value": "{{bid_amount}}"
+                },
+                {
+                  "key": "submit_bid",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.3 - Dang nhap sai mat khau",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[02.3] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[02.3] Hien thi thong bao loi dang nhap', function () {",
+                  "    var coLoi = body.includes('M\\u1eadt kh\\u1ea9u kh\\u00f4ng ch\\u00ednh x\\u00e1c')",
+                  "             || body.includes('T\\u00e0i kho\\u1ea3n kh\\u00f4ng t\\u1ed3n t\\u1ea1i');",
+                  "    pm.expect(coLoi).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('[02.3] Van o lai trang dang nhap', function () {",
+                  "    pm.expect(body).to.include('\\u0110\\u0102NG NH\\u1eacP');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "user_khong_ton_tai"
+                },
+                {
+                  "key": "password",
+                  "value": "sai_mat_khau_xyz"
+                },
+                {
+                  "key": "btn_login",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Dang ky tai khoan moi",
+      "item": [
+        {
+          "name": "03.1 - POST Dang ky thanh cong",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Tao username duy nhat moi lan chay de tranh trung",
+                  "var newUser = 'pm_' + Date.now();",
+                  "pm.environment.set('test_username', newUser);",
+                  "pm.environment.set('test_full_name', 'Postman Test User');",
+                  "console.log('Dang ky voi username:', newUser);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[03.1] Khong loi server', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[03.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[03.1] Dang ky thanh cong - chuyen sang trang login', function () {",
+                  "    var thanhCong = body.includes('\\u0110\\u0102NG NH\\u1eacP')",
+                  "                && !body.includes('T\\u00ean \\u0111\\u0103ng nh\\u1eadp \\u0111\\u00e3 t\\u1ed3n t\\u1ea1i');",
+                  "    pm.expect(thanhCong).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('[03.1] Username da luu vao environment', function () {",
+                  "    var u = pm.environment.get('test_username');",
+                  "    pm.expect(u).to.match(/^pm_\\d+$/);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{test_username}}\",\r\n  \"password\": \"{{test_password}}\",\r\n  \"full_name\": \"{{test_full_name}}\",\r\n  \"email\": \"{{test_username}}@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "register.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.2 - POST Dang ky trung username",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[03.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[03.2] Bao loi ten dang nhap da ton tai', function () {",
+                  "    pm.expect(body).to.include('T\\u00ean \\u0111\\u0103ng nh\\u1eadp \\u0111\\u00e3 t\\u1ed3n t\\u1ea1i');",
+                  "});",
+                  "",
+                  "pm.test('[03.2] Van o trang dang ky', function () {",
+                  "    pm.expect(body).to.include('\\u0110\\u0102NG K\\u00dd');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{test_username}}"
+                },
+                {
+                  "key": "password",
+                  "value": "{{test_password}}"
+                },
+                {
+                  "key": "full_name",
+                  "value": "Trung Ten"
+                },
+                {
+                  "key": "btn_register",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/register.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "register.php"
+              ]
+            },
+            "description": "Dung lai username tu 03.1 de kiem tra bao loi trung ten."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Dang nhap",
+      "item": [
+        {
+          "name": "04.1 - POST Dang nhap thanh cong",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[04.1] Khong loi server', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Khong co thong bao loi dang nhap', function () {",
+                  "    pm.expect(body).to.not.include('M\\u1eadt kh\\u1ea9u kh\\u00f4ng ch\\u00ednh x\\u00e1c');",
+                  "    pm.expect(body).to.not.include('T\\u00e0i kho\\u1ea3n kh\\u00f4ng t\\u1ed3n t\\u1ea1i');",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Dang nhap thanh cong - ve trang chu', function () {",
+                  "    pm.expect(body).to.include('ROYAL BID');",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Hien thi ten user va nut Thoat', function () {",
+                  "    pm.expect(body).to.include('Postman Test User');",
+                  "    pm.expect(body).to.include('Tho\\u00e1t');",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Session dang nhap hoat dong', function () {",
+                  "    // login.php redirect 302 -> index.php, Postman thuong khong doc duoc cookie bang toObject()",
+                  "    var daDangNhap = body.includes('\\u0110\\u01a1n c\\u1ee7a t\\u00f4i') && body.includes('Tho\\u00e1t');",
+                  "    var coCookie = false;",
+                  "    try {",
+                  "        coCookie = pm.cookies.has('PHPSESSID');",
+                  "    } catch (e) {",
+                  "        coCookie = false;",
+                  "    }",
+                  "    pm.expect(daDangNhap || coCookie).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{test_username}}\",\r\n  \"password\": \"{{test_password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login.php"
+              ]
+            },
+            "description": "Dung username/password tu buoc 03.1. Postman tu dong giu cookie PHPSESSID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - User da dang nhap",
+      "item": [
+        {
+          "name": "05.1 - GET my_bids (co session)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Hien thi trang my_bids.php', function () {",
+                  "    pm.expect(body).to.include('class=\"page-title\"');",
+                  "    pm.expect(body).to.include('custom-table');",
+                  "    pm.expect(body).to.include('glass-container');",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Co du lieu dau gia (dang dan dau / bi vuot / trong)', function () {",
+                  "    var coDuLieu = body.includes('badge-lead')",
+                  "                || body.includes('badge-fail')",
+                  "                || body.includes('badge-won')",
+                  "                || body.includes('badge-pending')",
+                  "                || body.includes('badge-paid')",
+                  "                || body.includes('product-thumb')",
+                  "                || body.includes(\"colspan='7'\");",
+                  "    pm.expect(coDuLieu).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Da dang nhap - khong thay form login', function () {",
+                  "    pm.expect(body).to.not.include('name=\"btn_login\"');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "my_bids.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.2 - GET Trang chu - lay product_id con han",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Lay product_id va min_bid tu trang chu",
+                  "var matchModal = body.match(/openBidModal\\('(\\d+)'\\s*,\\s*'[^']*'\\s*,\\s*(\\d+)\\)/);",
+                  "if (matchModal) {",
+                  "    pm.environment.set('product_id', matchModal[1]);",
+                  "    var minBid = Number(matchModal[2]);",
+                  "    pm.environment.set('bid_amount', String(minBid));",
+                  "    pm.environment.set('bid_amount_low', '1');",
+                  "    console.log('product_id:', matchModal[1], '| min bid:', minBid);",
+                  "} else {",
+                  "    console.log('Khong co san pham con han, dung gia tri mac dinh tu environment');",
+                  "}",
+                  "",
+                  "pm.test('[05.2] Cap nhat product_id vao environment', function () {",
+                  "    pm.expect(pm.environment.get('product_id')).to.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.3 - POST Dat gia hop le",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.3] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.3] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[05.3] Co ket qua dat gia hop le', function () {",
+                  "    var results = [",
+                  "        '\\u0110\\u1ea5u gi\\u00e1 th\\u00e0nh c\\u00f4ng',",
+                  "        'Phi\\u00ean \\u0111\\u1ea5u gi\\u00e1 \\u0111\\u00e3 k\\u1ebft th\\u00fac',",
+                  "        'Gi\\u00e1 \\u0111\\u1ea5u ph\\u1ea3i cao h\\u01a1n'",
+                  "    ];",
+                  "    var matched = false;",
+                  "    for (var i = 0; i < results.length; i++) {",
+                  "        if (body.includes(results[i])) { matched = true; break; }",
+                  "    }",
+                  "    pm.environment.set('last_bid_result', matched ? 'co_ket_qua' : 'khong_ro');",
+                  "    pm.expect(matched).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "bid_amount",
+                  "value": "{{bid_amount}}"
+                },
+                {
+                  "key": "submit_bid",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.4 - POST Dat gia qua thap",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.4] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.4] Tu choi gia dat qua thap', function () {",
+                  "    var baoLoi = body.includes('Gi\\u00e1 \\u0111\\u1ea5u ph\\u1ea3i cao h\\u01a1n m\\u1ee9c hi\\u1ec7n t\\u1ea1i + b\\u01b0\\u1edbc gi\\u00e1')",
+                  "             || body.includes('Phi\\u00ean \\u0111\\u1ea5u gi\\u00e1 \\u0111\\u00e3 k\\u1ebft th\\u00fac');",
+                  "    pm.expect(baoLoi).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "bid_amount",
+                  "value": "1"
+                },
+                {
+                  "key": "submit_bid",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.5 - GET my_bids sau khi dat gia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.5] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.5] Hien thi trang my_bids.php', function () {",
+                  "    pm.expect(body).to.include('custom-table');",
+                  "    pm.expect(body).to.include('glass-container');",
+                  "});",
+                  "",
+                  "pm.test('[05.5] Co du lieu bid hoac thong bao trong', function () {",
+                  "    var coBid = body.includes('badge-lead')",
+                  "             || body.includes('badge-fail')",
+                  "             || body.includes('badge-won')",
+                  "             || body.includes('badge-pending')",
+                  "             || body.includes('badge-paid')",
+                  "             || body.includes('product-thumb')",
+                  "             || body.includes(\"colspan='7'\");",
+                  "    pm.expect(coBid).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_bids.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.6 - POST Xac nhan chuyen khoan (confirm_pay)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.6] Khong loi server', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[05.6] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[05.6] Ket qua hop le (gui duoc hoac du lieu sai)', function () {",
+                  "    var hopLe = body.includes('\\u0110\\u00e3 g\\u1eedi th\\u00f4ng b\\u00e1o chuy\\u1ec3n kho\\u1ea3n')",
+                  "             || body.includes('D\\u1eef li\\u1ec7u kh\\u00f4ng h\\u1ee3p l\\u1ec7')",
+                  "             || body.includes('L\\u1ecaCH S\\u1ee4 GIAO D\\u1ecaCH');",
+                  "    pm.expect(hopLe).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "amount",
+                  "value": "{{bid_amount}}"
+                },
+                {
+                  "key": "confirm_pay",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_bids.php"
+              ]
+            },
+            "description": "Chi thanh cong khi user la nguoi thang cuoc (bid_amount bang price san pham)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 - Admin actions",
+      "item": [
+        {
+          "name": "06.1 - GET Admin dashboard day du",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[06.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co bang tai san dang dau gia', function () {",
+                  "    pm.expect(body).to.include('T\\u00e0i S\\u1ea3n \\u0110ang \\u0110\\u1ea5u Gi\\u00e1');",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co bang lich su thang cuoc', function () {",
+                  "    pm.expect(body).to.include('L\\u1ecaCH S\\u1ee4 TH\\u1eaeng CU\\u1ed8C');",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co bang yeu cau thanh toan', function () {",
+                  "    pm.expect(body).to.include('Y\\u00eau C\\u1ea7u Thanh To\\u00e1n');",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co form them san pham', function () {",
+                  "    pm.expect(body).to.include('name=\"add_product\"');",
+                  "    pm.expect(body).to.include('name=\"name\"');",
+                  "    pm.expect(body).to.include('name=\"category\"');",
+                  "    pm.expect(body).to.include('name=\"price\"');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06.2 - GET Admin duyet don thanh toan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[06.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[06.2] Admin phan hoi sau khi duyet', function () {",
+                  "    pm.expect(body).to.include('ROYAL ADMIN');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php?approve_order={{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ],
+              "query": [
+                {
+                  "key": "approve_order",
+                  "value": "{{order_id}}"
+                }
+              ]
+            },
+            "description": "Doi order_id trong environment sang ID don dang pending truoc khi chay."
+          },
+          "response": []
+        },
+        {
+          "name": "06.3 - GET Admin tu choi don thanh toan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[06.3] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[06.3] Admin phan hoi sau khi tu choi', function () {",
+                  "    pm.expect(body).to.include('ROYAL ADMIN');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php?cancel_order={{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ],
+              "query": [
+                {
+                  "key": "cancel_order",
+                  "value": "{{order_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 - Logout & ket thuc",
+      "item": [
+        {
+          "name": "07.1 - GET Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "var code = pm.response.code;",
+                  "",
+                  "pm.test('[07.1] Logout thanh cong', function () {",
+                  "    pm.expect(code).to.be.oneOf([200, 302]);",
+                  "});",
+                  "",
+                  "pm.test('[07.1] Sau logout ve trang chu chua dang nhap', function () {",
+                  "    pm.expect(body).to.include('\\u0110\\u0103ng nh\\u1eadp');",
+                  "    pm.expect(body).to.include('\\u0110\\u0103ng k\\u00fd');",
+                  "    pm.expect(body).to.not.include('Tho\\u00e1t');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/logout.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07.2 - GET my_bids sau logout -> phai ve login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "var code = pm.response.code;",
+                  "",
+                  "pm.test('[07.2] Session da huy - khong vao duoc my_bids', function () {",
+                  "    var veLogin = body.includes('\\u0110\\u0102NG NH\\u1eacP') && body.includes('btn_login');",
+                  "    var redirect = (code === 302);",
+                  "    pm.expect(veLogin || redirect).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_bids.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08 - Manual (can chon file anh)",
+      "item": [
+        {
+          "name": "08.1 - POST Admin them san pham moi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[08.1] Them san pham - phan hoi hop le', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[08.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "{{new_product_name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "{{new_product_category}}",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "{{new_product_price}}",
+                  "type": "text"
+                },
+                {
+                  "key": "min_increment",
+                  "value": "{{new_product_min_increment}}",
+                  "type": "text"
+                },
+                {
+                  "key": "end_time",
+                  "value": "{{new_product_end_time}}",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "value": null
+                },
+                {
+                  "key": "add_product",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/admin.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ]
+            },
+            "description": "Chon file anh o field 'image' truoc khi Send."
+          },
+          "response": []
+        },
+        {
+          "name": "08.2 - GET Admin xoa san pham",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php?delete_id={{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ],
+              "query": [
+                {
+                  "key": "delete_id",
+                  "value": "{{product_id}}"
+                }
+              ]
+            },
+            "description": "Can than: xoa that san pham khoi DB."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pre-request: khong can thiet lap gi them"
+        ]
+      }
+    }
+  ]
+}
