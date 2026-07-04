@@ -7,7 +7,7 @@
 **Công cụ kiểm thử:** Postman, XAMPP, phpMyAdmin, Jira
 **Môi trường:** Localhost
 **Backend:** PHP + MySQL
-**Người thực hiện:** Nhóm kiểm thử Integration Test
+**Người thực hiện:** Nguyễn Trương Quang Minh
 
 ---
 
