@@ -10,6 +10,7 @@
       <file>tests/CategoryUnitTest.php</file>
       <file>tests/PaymentRuleUnitTest.php</file>
       <file>tests/BidHandlerUnitTest.php</file>
+      <file>tests/AdminAuthUnitTest.php</file>
     </testsuite>
     <testsuite name="Integration">
       <directory suffix="Test.php">tests/Integration</directory>
