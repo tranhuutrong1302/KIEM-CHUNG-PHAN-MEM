@@ -33,4 +33,25 @@ final class ApiHelperTest extends TestCase
         $this->assertSame(['foo' => 'bar'], $response['data']);
         $this->assertSame(422, $response['code']);
     }
+
+    public function testGetCategoryDetectsTrangSucFromName(): void
+    {
+        $row = ['category' => 'Khác', 'name' => 'Nhẫn kim cương PNJ'];
+        $this->assertSame('Trang sức', getCategory($row));
+    }
+
+    public function testGetCategoryDetectsBienSoFromName(): void
+    {
+        $row = ['category' => '', 'name' => 'Biển số ngũ quý 30a-9999'];
+        $this->assertSame('Biển số', getCategory($row));
+    }
+
+    public function testBuildApiResponseSuccessCase(): void
+    {
+        $response = buildApiResponse(true, 'Thành công', ['id' => 1]);
+        $this->assertSame(true, $response['success']);
+        $this->assertSame('Thành công', $response['message']);
+        $this->assertSame(['id' => 1], $response['data']);
+        $this->assertSame(200, $response['code']);
+    }
 }

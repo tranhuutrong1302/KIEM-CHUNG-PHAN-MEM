@@ -46,4 +46,34 @@ class BidRuleUnitTest extends TestCase
         $this->assertTrue($result['ok']);
         $this->assertSame('Đấu giá thành công', $result['message']);
     }
+
+    public function testRejectsWhenProductIsNull(): void
+    {
+        $result = validateBid(null, 1000000, '2026-06-01 10:00:00');
+        $this->assertFalse($result['ok']);
+        $this->assertSame('PRODUCT_NOT_FOUND', $result['code']);
+    }
+
+    public function testAcceptsHugeBidAmount(): void
+    {
+        $product = [
+            'price' => 1000000,
+            'min_increment' => 100000,
+            'end_time' => '2026-06-30 10:00:00',
+        ];
+        $result = validateBid($product, 999999999999, '2026-06-01 10:00:00');
+        $this->assertTrue($result['ok']);
+        $this->assertSame('BID_ACCEPTED', $result['code']);
+    }
+
+    public function testMinIncrementZeroOrNegative(): void
+    {
+        $product = [
+            'price' => 1000000,
+            'min_increment' => 0,
+            'end_time' => '2026-06-30 10:00:00',
+        ];
+        $result = validateBid($product, 1000001, '2026-06-01 10:00:00');
+        $this->assertTrue($result['ok']);
+    }
 }

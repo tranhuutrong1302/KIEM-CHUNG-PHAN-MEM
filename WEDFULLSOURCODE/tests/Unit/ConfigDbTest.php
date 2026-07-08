@@ -25,4 +25,19 @@ final class ConfigDbTest extends TestCase
     {
         $this->assertSame('/uploads/image.jpg', normalizeImageUrl('uploads\\image.jpg'));
     }
+
+    public function testNormalizeImageUrlHandlesNull(): void
+    {
+        $this->assertSame('', normalizeImageUrl(null));
+    }
+
+    public function testNormalizeImageUrlEncodesWhitespaceInSubdir(): void
+    {
+        $this->assertSame('/uploads/my%20folder/photo.png', normalizeImageUrl('uploads/my folder/photo.png'));
+    }
+
+    public function testNormalizeImageUrlWithMultipleSlashes(): void
+    {
+        $this->assertSame('/uploads///sub///file.jpg', normalizeImageUrl('///uploads///sub///file.jpg'));
+    }
 }
