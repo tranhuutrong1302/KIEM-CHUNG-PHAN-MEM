@@ -9,8 +9,13 @@ function resolveCategory(array $row): string
 
     $name = mb_strtolower((string)($row['name'] ?? ''), 'UTF-8');
 
-    if (strpos($name, 'biển') !== false || strpos($name, '30a') !== false) {
-        return 'Biển số';
+    if (
+        strpos($name, 'đồng hồ') !== false
+        || strpos($name, 'patek') !== false
+        || strpos($name, 'richard') !== false
+        || strpos($name, 'rolex') !== false
+    ) {
+        return 'Đồng hồ';
     }
 
     if (
@@ -24,20 +29,15 @@ function resolveCategory(array $row): string
     }
 
     if (
-        strpos($name, 'đồng hồ') !== false
-        || strpos($name, 'patek') !== false
-        || strpos($name, 'richard') !== false
-        || strpos($name, 'rolex') !== false
-    ) {
-        return 'Đồng hồ';
-    }
-
-    if (
         strpos($name, 'biệt thự') !== false
         || strpos($name, 'penthouse') !== false
         || strpos($name, 'đất') !== false
     ) {
         return 'Bất động sản';
+    }
+
+    if (strpos($name, 'biển') !== false || strpos($name, '30a') !== false) {
+        return 'Biển số';
     }
 
     return 'Xe sang';

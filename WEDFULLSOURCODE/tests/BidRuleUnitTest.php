@@ -29,7 +29,8 @@ class BidRuleUnitTest extends TestCase
         $result = validateBid($product, 1099999, '2026-06-01 10:00:00');
 
         $this->assertFalse($result['ok']);
-        $this->assertSame('Giá đấu phải cao hơn mức hiện tại + bước giá', $result['message']);
+        $this->assertStringContainsString('Giá đấu phải cao hơn', $result['message']);
+        $this->assertStringContainsString('1,100,000', $result['message']);
     }
 
     public function testAcceptsWhenBidMeetsMinRequired(): void

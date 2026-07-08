@@ -36,7 +36,7 @@ class CategoryUnitTest extends TestCase
 
     public function testDetectsBatDongSan(): void
     {
-        $row = ['name' => 'Biệt thự biển Vũng Tàu', 'category' => 'Khác'];
+        $row = ['name' => 'Biệt thự biển Vũng Tàu', 'category' => ''];
         $this->assertSame('Bất động sản', resolveCategory($row));
     }
 

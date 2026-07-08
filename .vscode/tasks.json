@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PHPUnit: Run All Tests",
+      "type": "shell",
+      "command": "./vendor/bin/phpunit --configuration phpunit.xml",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": ["$phpunit"]
+    },
+    {
+      "label": "PHPUnit: Run Unit Tests",
+      "type": "shell",
+      "command": "./vendor/bin/phpunit --testsuite Unit --configuration phpunit.xml",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": ["$phpunit"]
+    },
+    {
+      "label": "PHPUnit: Run Integration Tests",
+      "type": "shell",
+      "command": "./vendor/bin/phpunit --testsuite Integration --configuration phpunit.xml",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": ["$phpunit"]
+    }
+  ]
+}

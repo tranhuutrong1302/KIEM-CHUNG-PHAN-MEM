@@ -1,0 +1,5 @@
+{
+  "phpunit.executablePath": "/home/nho/Documents/Hoc_Tap/Kiểm chứng phần mềm/du_an/KIEM-CHUNG-PHAN-MEM/WEDFULLSOURCODE/vendor/bin/phpunit",
+  "phpunit.configPath": "/home/nho/Documents/Hoc_Tap/Kiểm chứng phần mềm/du_an/KIEM-CHUNG-PHAN-MEM/WEDFULLSOURCODE/phpunit.xml",
+  "phpunit.rootDir": "/home/nho/Documents/Hoc_Tap/Kiểm chứng phần mềm/du_an/KIEM-CHUNG-PHAN-MEM/WEDFULLSOURCODE"
+}

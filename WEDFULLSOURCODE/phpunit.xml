@@ -4,8 +4,15 @@
          stopOnFailure="false"
          cacheDirectory=".phpunit.cache">
   <testsuites>
-    <testsuite name="Auction Backend Tests">
-      <directory suffix="Test.php">tests</directory>
+    <testsuite name="Unit">
+      <directory suffix="Test.php">tests/Unit</directory>
+      <file>tests/BidRuleUnitTest.php</file>
+      <file>tests/CategoryUnitTest.php</file>
+      <file>tests/PaymentRuleUnitTest.php</file>
+      <file>tests/BidHandlerUnitTest.php</file>
+    </testsuite>
+    <testsuite name="Integration">
+      <directory suffix="Test.php">tests/Integration</directory>
     </testsuite>
   </testsuites>
   <php>

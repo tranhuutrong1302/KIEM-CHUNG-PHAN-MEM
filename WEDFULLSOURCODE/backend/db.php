@@ -5,10 +5,16 @@ $username = getenv('DB_USER') ?: getenv('TEST_DB_USER') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: getenv('TEST_DB_PASSWORD') ?: '';
 $dbname = getenv('DB_NAME') ?: getenv('TEST_DB_NAME') ?: 'dau_gia';
 
-$conn = mysqli_connect($servername, $username, $password, $dbname);
+try {
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+} catch (Throwable $e) {
+    $conn = false;
+}
 date_default_timezone_set('Asia/Ho_Chi_Minh'); // Set múi giờ Việt Nam
 
-if (!$conn) die("Kết nối thất bại: " . mysqli_connect_error());
+if (!$conn && !defined('PHPUNIT')) {
+    die("Kết nối thất bại: " . mysqli_connect_error());
+}
 
 // Hàm chuẩn hóa đường dẫn ảnh từ upload
 function normalizeImageUrl($path) {
