@@ -1,0 +1,152 @@
+{
+  "info": {
+    "name": "Royal Bid - 06 - Admin actions",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "06 - Admin actions",
+      "item": [
+        {
+          "name": "06.1 - GET Admin dashboard day du",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[06.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co bang tai san dang dau gia', function () {",
+                  "    pm.expect(body).to.include('T\\u00e0i S\\u1ea3n \\u0110ang \\u0110\\u1ea5u Gi\\u00e1');",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co bang lich su thang cuoc', function () {",
+                  "    pm.expect(body).to.include('L\\u1ecaCH S\\u1ee4 TH\\u1eaeng CU\\u1ed8C');",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co bang yeu cau thanh toan', function () {",
+                  "    pm.expect(body).to.include('Y\\u00eau C\\u1ea7u Thanh To\\u00e1n');",
+                  "});",
+                  "",
+                  "pm.test('[06.1] Co form them san pham', function () {",
+                  "    pm.expect(body).to.include('name=\"add_product\"');",
+                  "    pm.expect(body).to.include('name=\"name\"');",
+                  "    pm.expect(body).to.include('name=\"category\"');",
+                  "    pm.expect(body).to.include('name=\"price\"');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06.2 - GET Admin duyet don thanh toan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[06.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[06.2] Admin phan hoi sau khi duyet', function () {",
+                  "    pm.expect(body).to.include('ROYAL ADMIN');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php?approve_order={{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ],
+              "query": [
+                {
+                  "key": "approve_order",
+                  "value": "{{order_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06.3 - GET Admin tu choi don thanh toan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[06.3] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[06.3] Admin phan hoi sau khi tu choi', function () {",
+                  "    pm.expect(body).to.include('ROYAL ADMIN');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php?cancel_order={{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ],
+              "query": [
+                {
+                  "key": "cancel_order",
+                  "value": "{{order_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

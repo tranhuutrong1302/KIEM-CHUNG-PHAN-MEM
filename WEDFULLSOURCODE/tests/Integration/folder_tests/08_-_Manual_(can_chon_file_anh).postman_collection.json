@@ -1,0 +1,112 @@
+{
+  "info": {
+    "name": "Royal Bid - 08 - Manual (can chon file anh)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "08 - Manual (can chon file anh)",
+      "item": [
+        {
+          "name": "08.1 - POST Admin them san pham moi",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[08.1] Them san pham - phan hoi hop le', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[08.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "{{new_product_name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "{{new_product_category}}",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "{{new_product_price}}",
+                  "type": "text"
+                },
+                {
+                  "key": "min_increment",
+                  "value": "{{new_product_min_increment}}",
+                  "type": "text"
+                },
+                {
+                  "key": "end_time",
+                  "value": "{{new_product_end_time}}",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "add_product",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/admin.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08.2 - GET Admin xoa san pham",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin.php?delete_id={{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin.php"
+              ],
+              "query": [
+                {
+                  "key": "delete_id",
+                  "value": "{{product_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

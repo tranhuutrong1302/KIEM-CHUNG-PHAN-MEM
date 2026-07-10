@@ -1,0 +1,36 @@
+{
+  "info": {
+    "name": "Royal Bid - MINIMAL Test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Test Folder",
+      "item": [
+        {
+          "name": "Health Check - test_db.php",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/test_db.php",
+              "host": ["{{base_url}}"],
+              "path": ["test_db.php"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

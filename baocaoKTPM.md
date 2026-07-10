@@ -46,11 +46,14 @@ Dựa trên cấu trúc mã nguồn tại thư mục `tests/Unit/` và `tests/Ca
 Thực hiện giả lập client gửi các HTTP Request liên tiếp lên server thông qua Postman:
 
 * **IT05.1:** Gửi yêu cầu GET tới `my_bids.php` khi session đăng nhập tồn tại -> Mong đợi trả về JSON chứa lịch sử đấu giá của User.
+* **IT05.2:** Gửi yêu cầu GET tới trang chủ để lấy `product_id` còn hạn -> Mong đợi hiển thị danh sách sản phẩm hợp lệ và chọn được sản phẩm còn thời gian đấu giá.
 * **IT05.3:** Gửi yêu cầu POST đặt giá hợp lệ tới API đặt giá -> Mong đợi lưu thành công lượt bid vào CSDL và cập nhật giá cao nhất của sản phẩm.
 * **IT05.4:** Gửi yêu cầu POST đặt giá thấp hơn mức tối thiểu -> Mong đợi hệ thống từ chối và trả về mã lỗi 400 kèm thông báo tương thích.
 * **IT05.6:** Gửi yêu cầu POST gửi xác nhận chuyển khoản cho sản phẩm thắng cuộc -> Mong đợi tạo mới một bản ghi giao dịch ở trạng thái `Pending` trong bảng `orders`.
 * **IT06.1:** Admin truy cập màn hình Dashboard quản trị -> Mong đợi hiển thị bảng danh sách sản phẩm, thành viên và khu vực "Lịch sử thắng cuộc".
 * **IT06.2 / IT06.3:** Admin gửi yêu cầu phê duyệt hoặc hủy bỏ đơn thanh toán của người dùng -> Mong đợi trạng thái đơn chuyển dịch thành `Paid` hoặc `Cancel` tương ứng trong CSDL.
+* **IT07.2:** Gửi yêu cầu GET tới `my_bids.php` sau khi logout -> Mong đợi hệ thống yêu cầu đăng nhập lại.
+* **IT08.2:** Admin gửi yêu cầu GET xóa sản phẩm -> Mong đợi thao tác thành công và dữ liệu được cập nhật đúng trong CSDL.
 
 ---
 
@@ -67,6 +70,7 @@ Thực hiện giả lập client gửi các HTTP Request liên tiếp lên serve
 | **UT-05** | Chuẩn hóa ảnh tương đối | Mã hóa thực thể URL an toàn | Đầu ra khớp chuẩn URL | **PASS** |
 | **UT-06** | Giữ nguyên URL tuyệt đối | Không thay đổi link http/https | Giữ nguyên cấu trúc link | **PASS** |
 | **IT05.1**| GET my_bids khi có session | Trả về JSON danh sách bid | Trả JSON success=true | **PASS** |
+| **IT05.2**| GET trang chủ lấy product_id | Hiển thị sản phẩm còn hạn | Hiển thị đúng danh sách sản phẩm | **PASS** |
 | **IT05.3**| POST đặt giá hợp lệ | Lưu bid và cập nhật giá | Chạy ổn định, không crash | **PASS** |
 | **IT05.4**| POST đặt giá quá thấp | Từ chối và hiển thị thông báo | Hiển thị giá tối thiểu chi tiết | **PASS** |
 | **IT05.5**| GET my_bids sau khi đặt | Hiển thị lịch sử đấu giá | Hiển thị đúng danh sách bid | **PASS** |
@@ -75,7 +79,9 @@ Thực hiện giả lập client gửi các HTTP Request liên tiếp lên serve
 | **IT06.2**| Admin duyệt thanh toán | Cập nhật đơn hàng thành Paid | Cập nhật thành công | **PASS** |
 | **IT06.3**| Admin hủy đơn thanh toán | Cập nhật đơn hàng thành Cancel | Hủy thành công | **PASS** |
 | **IT07.1**| GET API Đăng xuất | Hủy session trên máy chủ | Đăng xuất thành công | **PASS** |
+| **IT07.2**| GET my_bids sau logout | Yêu cầu đăng nhập lại | Trả về đúng trạng thái | **PASS** |
 | **IT08.1**| Admin thêm sản phẩm | Tạo mới bản ghi sản phẩm | Thêm sản phẩm thành công | **PASS** |
+| **IT08.2**| Admin xóa sản phẩm | Xóa bản ghi sản phẩm | Xóa sản phẩm thành công | **PASS** |
 
 ### 2. Thống kê số liệu kiểm thử tích hợp (API Integration Test)
 * **Tổng số kịch bản thực hiện:** 13
@@ -83,6 +89,29 @@ Thực hiện giả lập client gửi các HTTP Request liên tiếp lên serve
 * **Số kịch bản FAIL:** 0 (Tỷ lệ: 0%)
 
 *Nhận xét:* Sau quá trình kiểm chứng và khắc phục, hệ thống đã vượt qua tất cả các kịch bản kiểm thử. Các lỗi nghiêm trọng về kiểu dữ liệu (Fatal Error) và lỗi điều hướng (Redirect) đã được giải quyết hoàn toàn, đảm bảo luồng vận hành từ người dùng đến quản trị viên diễn ra thông suốt.
+
+### 3. Minh chứng Postman cần chèn vào báo cáo
+Để hoàn thiện bản nộp, nên chèn ảnh chụp màn hình Postman hiển thị trạng thái `PASS` cho các request sau:
+
+* `00.1 - Ket noi MySQL (test_db.php)`
+* `00.2 - Trang chu load san pham`
+* `05.1 - GET my_bids (co session)`
+* `05.2 - GET Trang chu - lay product_id con han`
+* `05.3 - POST Dat gia hop le`
+* `05.4 - POST Dat gia qua thap`
+* `05.5 - GET my_bids sau khi dat gia`
+* `05.6 - POST Xac nhan chuyen khoan (confirm_pay)`
+* `06.1 - GET Admin dashboard day du`
+* `06.2 - GET Admin duyet don thanh toan`
+* `06.3 - GET Admin tu choi don thanh toan`
+* `07.1 - GET Logout`
+* `07.2 - GET my_bids sau logout -> phai ve login`
+* `08.1 - POST Admin them san pham moi`
+* `08.2 - GET Admin xoa san pham`
+
+File collection và environment để đối chiếu:
+* [Royal_Bid.postman_collection.json](WEDFULLSOURCODE/tests/Integration/Royal_Bid.postman_collection.json)
+* [Royal_Bid.postman_environment.json](WEDFULLSOURCODE/tests/Integration/Royal_Bid.postman_environment.json)
 
 ---
 

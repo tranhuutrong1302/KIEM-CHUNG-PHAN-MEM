@@ -1,0 +1,369 @@
+{
+  "info": {
+    "name": "Royal Bid - 05 - User da dang nhap",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "05 - User da dang nhap",
+      "item": [
+        {
+          "name": "05.1 - GET my_bids (co session)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Hien thi trang my_bids.php', function () {",
+                  "    pm.expect(body).to.include('class=\"page-title\"');",
+                  "    pm.expect(body).to.include('custom-table');",
+                  "    pm.expect(body).to.include('glass-container');",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Co du lieu dau gia (dang dan dau / bi vuot / trong)', function () {",
+                  "    var coDuLieu = body.includes('badge-lead')",
+                  "                || body.includes('badge-fail')",
+                  "                || body.includes('badge-won')",
+                  "                || body.includes('badge-pending')",
+                  "                || body.includes('badge-paid')",
+                  "                || body.includes('product-thumb')",
+                  "                || body.includes(\"colspan='7'\");",
+                  "    pm.expect(coDuLieu).to.eql(true);",
+                  "});",
+                  "",
+                  "pm.test('[05.1] Da dang nhap - khong thay form login', function () {",
+                  "    pm.expect(body).to.not.include('name=\"btn_login\"');",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "my_bids.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.2 - GET Trang chu - lay product_id con han",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Lay product_id va min_bid tu trang chu",
+                  "var matchModal = body.match(/openBidModal\\('(\\d+)'\\s*,\\s*'[^']*'\\s*,\\s*(\\d+)\\)/);",
+                  "if (matchModal) {",
+                  "    pm.environment.set('product_id', matchModal[1]);",
+                  "    var minBid = Number(matchModal[2]);",
+                  "    pm.environment.set('bid_amount', String(minBid));",
+                  "    pm.environment.set('bid_amount_low', '1');",
+                  "    console.log('product_id:', matchModal[1], '| min bid:', minBid);",
+                  "} else {",
+                  "    console.log('Khong co san pham con han, dung gia tri mac dinh tu environment');",
+                  "}",
+                  "",
+                  "pm.test('[05.2] Cap nhat product_id vao environment', function () {",
+                  "    pm.expect(pm.environment.get('product_id')).to.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.3 - POST Dat gia hop le",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.3] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.3] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[05.3] Co ket qua dat gia hop le', function () {",
+                  "    var results = [",
+                  "        '\\u0110\\u1ea5u gi\\u00e1 th\\u00e0nh c\\u00f4ng',",
+                  "        'Phi\\u00ean \\u0111\\u1ea5u gi\\u00e1 \\u0111\\u00e3 k\\u1ebft th\\u00fac',",
+                  "        'Gi\\u00e1 \\u0111\\u1ea5u ph\\u1ea3i cao h\\u01a1n'",
+                  "    ];",
+                  "    var matched = false;",
+                  "    for (var i = 0; i < results.length; i++) {",
+                  "        if (body.includes(results[i])) { matched = true; break; }",
+                  "    }",
+                  "    pm.environment.set('last_bid_result', matched ? 'co_ket_qua' : 'khong_ro');",
+                  "    pm.expect(matched).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "bid_amount",
+                  "value": "{{bid_amount}}"
+                },
+                {
+                  "key": "submit_bid",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.4 - POST Dat gia qua thap",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.4] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.4] Tu choi gia dat qua thap', function () {",
+                  "    var baoLoi = body.includes('Gi\\u00e1 \\u0111\\u1ea5u ph\\u1ea3i cao h\\u01a1n m\\u1ee9c hi\\u1ec7n t\\u1ea1i + b\\u01b0\\u1edbc gi\\u00e1')",
+                  "             || body.includes('Phi\\u00ean \\u0111\\u1ea5u gi\\u00e1 \\u0111\\u00e3 k\\u1ebft th\\u00fac');",
+                  "    pm.expect(baoLoi).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "bid_amount",
+                  "value": "1"
+                },
+                {
+                  "key": "submit_bid",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.5 - GET my_bids sau khi dat gia",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.5] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[05.5] Hien thi trang my_bids.php', function () {",
+                  "    pm.expect(body).to.include('custom-table');",
+                  "    pm.expect(body).to.include('glass-container');",
+                  "});",
+                  "",
+                  "pm.test('[05.5] Co du lieu bid hoac thong bao trong', function () {",
+                  "    var coBid = body.includes('badge-lead')",
+                  "             || body.includes('badge-fail')",
+                  "             || body.includes('badge-won')",
+                  "             || body.includes('badge-pending')",
+                  "             || body.includes('badge-paid')",
+                  "             || body.includes('product-thumb')",
+                  "             || body.includes(\"colspan='7'\");",
+                  "    pm.expect(coBid).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_bids.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.6 - POST Xac nhan chuyen khoan (confirm_pay)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[05.6] Khong loi server', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[05.6] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[05.6] Ket qua hop le (gui duoc hoac du lieu sai)', function () {",
+                  "    var hopLe = body.includes('\\u0110\\u00e3 g\\u1eedi th\\u00f4ng b\\u00e1o chuy\\u1ec3n kho\\u1ea3n')",
+                  "             || body.includes('D\\u1eef li\\u1ec7u kh\\u00f4ng h\\u1ee3p l\\u1ec7')",
+                  "             || body.includes('L\\u1ecaCH S\\u1ee4 GIAO D\\u1ecaCH');",
+                  "    pm.expect(hopLe).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "amount",
+                  "value": "{{bid_amount}}"
+                },
+                {
+                  "key": "confirm_pay",
+                  "value": "1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/my_bids.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "my_bids.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "info": {
+    "name": "Royal Bid - 00 - Health Check",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Health Check",
+      "item": [
+        {
+          "name": "00.1 - Ket noi MySQL (test_db.php)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[00.1] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[00.1] Khong co loi PHP Fatal/Parse', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[00.1] Ket noi database thanh cong', function () {",
+                  "    pm.expect(body).to.include('K\\u1ebft n\\u1ed1i database th\\u00e0nh c\\u00f4ng');",
+                  "});",
+                  "",
+                  "pm.test('[00.1] Co so luong san pham tu DB', function () {",
+                  "    var match = body.match(/S\\u1ed1 s\\u1ea3n ph\\u1ea9m trong DB:\\s*(\\d+)/);",
+                  "    pm.expect(match).to.not.be.null;",
+                  "    if (match) {",
+                  "        pm.environment.set('product_count', match[1]);",
+                  "        console.log('San pham trong DB:', match[1]);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/test_db.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test_db.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "00.2 - Trang chu load san pham",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[00.2] Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('[00.2] Khong co loi PHP', function () {",
+                  "    pm.expect(body).to.not.match(/Fatal error|Parse error/i);",
+                  "});",
+                  "",
+                  "pm.test('[00.2] Trang chu Royal Bid hien thi', function () {",
+                  "    pm.expect(body).to.include('ROYAL BID');",
+                  "    pm.expect(body).to.include('TIN \\u0110\\u1ea4U GI\\u00c1 N\\u1ed4I B\\u1eacT');",
+                  "});",
+                  "",
+                  "pm.test('[00.2] Co danh sach san pham hoac thong bao', function () {",
+                  "    var coSanPham = body.includes('openBidModal') || body.includes('\\u0110\\u00c3 K\\u1ebeT TH\\u00daC');",
+                  "    pm.expect(coSanPham).to.eql(true);",
+                  "});",
+                  "",
+                  "// Tu dong lay product_id dau tien con han",
+                  "var matchProd = body.match(/openBidModal\\('(\\d+)'/);",
+                  "if (matchProd) {",
+                  "    pm.environment.set('product_id', matchProd[1]);",
+                  "    console.log('Tim thay product_id:', matchProd[1]);",
+                  "} else {",
+                  "    console.log('Khong co san pham con han - su dung product_id mac dinh');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/index.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "index.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

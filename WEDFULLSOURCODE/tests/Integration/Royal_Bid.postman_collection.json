@@ -359,8 +359,7 @@
               "path": [
                 "my_bids.php"
               ]
-            },
-            "description": "Chay request nay TRUOC khi dang nhap. Neu Postman dang giu cookie session cu, xoa cookie trong Cookies Manager truoc."
+            }
           },
           "response": []
         },
@@ -633,8 +632,7 @@
               "path": [
                 "register.php"
               ]
-            },
-            "description": "Dung lai username tu 03.1 de kiem tra bao loi trung ten."
+            }
           },
           "response": []
         }
@@ -714,8 +712,7 @@
                 "api",
                 "login.php"
               ]
-            },
-            "description": "Dung username/password tu buoc 03.1. Postman tu dong giu cookie PHPSESSID."
+            }
           },
           "response": []
         }
@@ -1076,8 +1073,7 @@
               "path": [
                 "my_bids.php"
               ]
-            },
-            "description": "Chi thanh cong khi user la nguoi thang cuoc (bid_amount bang price san pham)."
+            }
           },
           "response": []
         }
@@ -1179,8 +1175,7 @@
                   "value": "{{order_id}}"
                 }
               ]
-            },
-            "description": "Doi order_id trong environment sang ID don dang pending truoc khi chay."
+            }
           },
           "response": []
         },
@@ -1365,7 +1360,7 @@
                 {
                   "key": "image",
                   "type": "file",
-                  "value": null
+                  "src": ""
                 },
                 {
                   "key": "add_product",
@@ -1382,8 +1377,7 @@
               "path": [
                 "admin.php"
               ]
-            },
-            "description": "Chon file anh o field 'image' truoc khi Send."
+            }
           },
           "response": []
         },
@@ -1406,8 +1400,7 @@
                   "value": "{{product_id}}"
                 }
               ]
-            },
-            "description": "Can than: xoa that san pham khoi DB."
+            }
           },
           "response": []
         }

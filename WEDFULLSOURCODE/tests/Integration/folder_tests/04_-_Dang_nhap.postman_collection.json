@@ -1,0 +1,88 @@
+{
+  "info": {
+    "name": "Royal Bid - 04 - Dang nhap",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "04 - Dang nhap",
+      "item": [
+        {
+          "name": "04.1 - POST Dang nhap thanh cong",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var body = pm.response.text();",
+                  "",
+                  "pm.test('[04.1] Khong loi server', function () {",
+                  "    pm.expect(pm.response.code).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Khong co thong bao loi dang nhap', function () {",
+                  "    pm.expect(body).to.not.include('M\\u1eadt kh\\u1ea9u kh\\u00f4ng ch\\u00ednh x\\u00e1c');",
+                  "    pm.expect(body).to.not.include('T\\u00e0i kho\\u1ea3n kh\\u00f4ng t\\u1ed3n t\\u1ea1i');",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Dang nhap thanh cong - ve trang chu', function () {",
+                  "    pm.expect(body).to.include('ROYAL BID');",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Hien thi ten user va nut Thoat', function () {",
+                  "    pm.expect(body).to.include('Postman Test User');",
+                  "    pm.expect(body).to.include('Tho\\u00e1t');",
+                  "});",
+                  "",
+                  "pm.test('[04.1] Session dang nhap hoat dong', function () {",
+                  "    // login.php redirect 302 -> index.php, Postman thuong khong doc duoc cookie bang toObject()",
+                  "    var daDangNhap = body.includes('\\u0110\\u01a1n c\\u1ee7a t\\u00f4i') && body.includes('Tho\\u00e1t');",
+                  "    var coCookie = false;",
+                  "    try {",
+                  "        coCookie = pm.cookies.has('PHPSESSID');",
+                  "    } catch (e) {",
+                  "        coCookie = false;",
+                  "    }",
+                  "    pm.expect(daDangNhap || coCookie).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"{{test_username}}\",\r\n  \"password\": \"{{test_password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "login.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
