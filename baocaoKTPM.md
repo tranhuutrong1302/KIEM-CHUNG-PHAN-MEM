@@ -1,10 +1,7 @@
 # BÁO CÁO BÀI TẬP LỚN MÔN KIỂM CHỨNG PHẦN MỀM
 ## ĐỀ TÀI: KIỂM CHỨNG VÀ HOÀN THIỆN HỆ THỐNG ĐẤU GIÁ TRỰC TUYẾN ROYAL BID
 
-* **Người thực hiện:** Tôn Hoàng Nhớ
-* **Mã số sinh viên (MSSV):** 091204009518
-* **Lớp:** K23 - UTH (Trường Đại học Giao thông vận tải TP.HCM)
-* **Môn học:** Kiểm chứng phần mềm
+
 
 ---
 
