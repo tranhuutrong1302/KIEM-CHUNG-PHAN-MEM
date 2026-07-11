@@ -16,6 +16,13 @@
       <directory suffix="Test.php">tests/Integration</directory>
     </testsuite>
   </testsuites>
+  <coverage>
+    <include>
+      <file>backend/api/ApiHelper.php</file>
+      <file>backend/domain/AuctionRules.php</file>
+      <file>backend/api/BidHandler.php</file>
+    </include>
+  </coverage>
   <php>
     <ini name="display_errors" value="1"/>
     <env name="TEST_DB_HOST" value="localhost"/>

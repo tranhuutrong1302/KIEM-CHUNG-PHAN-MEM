@@ -32,7 +32,12 @@ function normalizeImageUrl($path) {
 
 // Hàm kiểm tra đăng nhập
 function checkLogin() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     if (!isset($_SESSION['user_id'])) {
+        // SCRUM-50: luôn redirect về đúng trang login.php,
+        // session đã được start nên không bị mất trạng thái đăng nhập
         header("Location: login.php");
         exit();
     }
