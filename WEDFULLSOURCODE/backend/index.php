@@ -34,6 +34,7 @@ if (isset($_POST['submit_bid'])) {
 // =========================================================================
 // PHẦN 2: CHUẨN BỊ DỮ LIỆU ĐỂ ĐẨY SANG GIAO DIỆN (DATA PREPARATION)
 // =========================================================================
+$isLoggedIn = isset($_SESSION['user_id']);
 $products_data = []; // Mảng chứa toàn bộ dữ liệu sản phẩm đã được tính toán sẵn
 $result = mysqli_query($conn, "SELECT * FROM products ORDER BY end_time DESC");
 $now = date("Y-m-d H:i:s");

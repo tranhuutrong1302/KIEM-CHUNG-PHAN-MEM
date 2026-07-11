@@ -158,7 +158,11 @@
                             </div>
                             
                             <?php if(!$row['is_expired']): ?>
+                                <?php if($isLoggedIn): ?>
                                 <button class="btn-view-auction" onclick="openBidModal('<?php echo $row['id']; ?>', '<?php echo htmlspecialchars($row['name']); ?>', <?php echo $row['next_min']; ?>)">XEM CHI TIẾT & ĐẤU GIÁ</button>
+                                <?php else: ?>
+                                <a href="login.php" class="btn-view-auction text-decoration-none d-flex align-items-center justify-content-center">ĐĂNG NHẬP ĐỂ ĐẤU GIÁ</a>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <button class="btn-view-auction" style="opacity:0.5; cursor:not-allowed">ĐÃ KẾT THÚC</button>
                             <?php endif; ?>
@@ -295,6 +299,11 @@
         }, 1000);
 
         function openBidModal(id, name, minPrice) {
+            <?php if(!$isLoggedIn): ?>
+            alert('Vui lòng đăng nhập để đấu giá!');
+            window.location = 'login.php';
+            return;
+            <?php endif; ?>
             document.getElementById('mId').value = id;
             document.getElementById('mTitle').innerText = name;
             let minPriceFmt = new Intl.NumberFormat('de-DE').format(minPrice);
