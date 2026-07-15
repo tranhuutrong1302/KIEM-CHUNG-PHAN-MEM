@@ -21,7 +21,7 @@ if ($wantsJson) {
 }
 
 if ($response['success']) {
-	header('Location: ../index.php');
+	header('Location: /index.php');
 	exit();
 }
 

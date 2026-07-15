@@ -1,6 +1,6 @@
 <?php
 session_start(); // Khởi động session cho toàn bộ web
-$servername = getenv('DB_HOST') ?: getenv('TEST_DB_HOST') ?: 'localhost';
+$servername = getenv('DB_HOST') ?: getenv('TEST_DB_HOST') ?: '127.0.0.1';
 $username = getenv('DB_USER') ?: getenv('TEST_DB_USER') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: getenv('TEST_DB_PASSWORD') ?: '';
 $dbname = getenv('DB_NAME') ?: getenv('TEST_DB_NAME') ?: 'dau_gia';

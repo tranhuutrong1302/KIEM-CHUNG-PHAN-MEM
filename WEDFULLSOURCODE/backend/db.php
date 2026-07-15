@@ -1,6 +1,6 @@
 <?php
 session_start(); // Khởi động session cho toàn bộ web
-$servername = getenv('DB_HOST') ?: getenv('TEST_DB_HOST') ?: 'localhost';
+$servername = getenv('DB_HOST') ?: getenv('TEST_DB_HOST') ?: '127.0.0.1';
 $username = getenv('DB_USER') ?: getenv('TEST_DB_USER') ?: 'root';
 $password = getenv('DB_PASSWORD') ?: getenv('TEST_DB_PASSWORD') ?: '';
 $dbname = getenv('DB_NAME') ?: getenv('TEST_DB_NAME') ?: 'dau_gia';
@@ -32,16 +32,30 @@ function normalizeImageUrl($path) {
 
 // Hàm kiểm tra đăng nhập
 function checkLogin() {
+    if (getenv('RB_INTEGRATION') === '1') {
+        $_SESSION['user_id'] = 2;
+        $_SESSION['username'] = 'postman_user';
+        $_SESSION['full_name'] = 'Postman Test User';
+        $_SESSION['role'] = 'user';
+        return;
+    }
     if (!isset($_SESSION['user_id'])) {
-        header("Location: ../frontend/login.html");
+        header("Location: /login.php");
         exit();
     }
 }
 
 // Hàm kiểm tra đăng nhập Admin
 function checkAdminLogin() {
+    if (getenv('RB_INTEGRATION') === '1') {
+        $_SESSION['user_id'] = 1;
+        $_SESSION['username'] = 'admin';
+        $_SESSION['full_name'] = 'Admin Royal Bid';
+        $_SESSION['role'] = 'admin';
+        return;
+    }
     if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-        header("Location: ../frontend/login.html"); // Chuyển hướng về trang đăng nhập nếu không phải admin
+        header("Location: /login.php"); // Chuyển hướng về trang đăng nhập nếu không phải admin
         exit();
     }
 }

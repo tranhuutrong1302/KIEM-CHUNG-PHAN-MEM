@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
-$mysqli = new mysqli("127.0.0.1", "root", "", "dau_gia", 3306, "/opt/lampp/var/mysql/mysql.sock");
+$mysqli = new mysqli("127.0.0.1", "root", "", "dau_gia", 3306);
 if ($mysqli->connect_error) {
     http_response_code(500);
     echo "Lỗi kết nối database: " . $mysqli->connect_error;

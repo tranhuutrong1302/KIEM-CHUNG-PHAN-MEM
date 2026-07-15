@@ -17,7 +17,7 @@ if (isset($_POST['btn_login'])) {
             $_SESSION['full_name'] = $row['full_name'];
             $_SESSION['role'] = $row['role'];
             
-            header("Location: ../frontend/index.html");
+            header("Location: /index.php");
             exit();
         } else {
             $mess = "Mật khẩu không chính xác!";

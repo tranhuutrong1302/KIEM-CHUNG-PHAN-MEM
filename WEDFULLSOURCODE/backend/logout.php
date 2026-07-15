@@ -1,1 +1,1 @@
-<?php session_start(); session_destroy(); header("Location: ../frontend/index.html"); ?>
+<?php session_start(); session_destroy(); header("Location: /index.php"); ?>
