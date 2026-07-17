@@ -40,7 +40,7 @@ function checkLogin() {
         return;
     }
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /login.php");
+        header("Location: login.php");
         exit();
     }
 }
@@ -55,7 +55,7 @@ function checkAdminLogin() {
         return;
     }
     if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-        header("Location: /login.php"); // Chuyển hướng về trang đăng nhập nếu không phải admin
+        header("Location: login.php"); // Chuyển hướng về trang đăng nhập
         exit();
     }
 }
