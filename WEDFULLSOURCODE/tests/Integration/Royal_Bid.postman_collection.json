@@ -324,17 +324,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// Force unauthenticated client: clear jar + strip Cookie header",
-                  "const base = pm.environment.get('base_url') || 'http://localhost/WED';",
-                  "try {",
-                  "    const jar = pm.cookies.jar();",
-                  "    // clear both possible hosts",
-                  "    [base, 'http://127.0.0.1:8080', 'http://localhost', 'http://localhost/WED'].forEach(function (u) {",
-                  "        try { jar.clear(u, function () {}); } catch (e) {}",
-                  "    });",
-                  "} catch (e) { console.log('jar clear skip', e); }",
-                  "// Override Cookie so leftover session is not sent",
-                  "pm.request.headers.upsert({ key: 'Cookie', value: '' });"
+                  "// Ghi đè Cookie bang session gia de PHP khong nhan ra admin",
+                  "pm.request.headers.upsert({key:'Cookie', value:'PHPSESSID=fake_dummy_session_for_test'});"
                 ]
               }
             },
@@ -384,17 +375,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// Force unauthenticated client: clear jar + strip Cookie header",
-                  "const base = pm.environment.get('base_url') || 'http://localhost/WED';",
-                  "try {",
-                  "    const jar = pm.cookies.jar();",
-                  "    // clear both possible hosts",
-                  "    [base, 'http://127.0.0.1:8080', 'http://localhost', 'http://localhost/WED'].forEach(function (u) {",
-                  "        try { jar.clear(u, function () {}); } catch (e) {}",
-                  "    });",
-                  "} catch (e) { console.log('jar clear skip', e); }",
-                  "// Override Cookie so leftover session is not sent",
-                  "pm.request.headers.upsert({ key: 'Cookie', value: '' });"
+                  "// Ghi đè Cookie bang session gia de PHP khong nhan ra admin",
+                  "pm.request.headers.upsert({key:'Cookie', value:'PHPSESSID=fake_dummy_session_for_test'});"
                 ]
               }
             },
@@ -529,17 +511,8 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "// Force unauthenticated client: clear jar + strip Cookie header",
-              "const base = pm.environment.get('base_url') || 'http://localhost/WED';",
-              "try {",
-              "    const jar = pm.cookies.jar();",
-              "    // clear both possible hosts",
-              "    [base, 'http://127.0.0.1:8080', 'http://localhost', 'http://localhost/WED'].forEach(function (u) {",
-              "        try { jar.clear(u, function () {}); } catch (e) {}",
-              "    });",
-              "} catch (e) { console.log('jar clear skip', e); }",
-              "// Override Cookie so leftover session is not sent",
-              "pm.request.headers.upsert({ key: 'Cookie', value: '' });"
+              "// Ghi đè Cookie bang session gia de PHP khong nhan ra admin",
+              "pm.request.headers.upsert({key:'Cookie', value:'PHPSESSID=fake_dummy_session_for_test'});"
             ]
           }
         }
@@ -1093,7 +1066,15 @@
                   "});",
                   "pm.test('[06.1] Co form them san pham', function () {",
                   "    pm.expect(body).to.include('name=\"add_product\"');",
-                  "});"
+                  "});",
+                  "// Lay order_id pending that tu link approve_order=ID",
+                  "var m = body.match(/approve_order=(\\d+)/);",
+                  "if (m) {",
+                  "    pm.environment.set('order_id', m[1]);",
+                  "    console.log('Pending order_id:', m[1]);",
+                  "} else {",
+                  "    console.log('Khong co don pending, giu order_id cu:', pm.environment.get('order_id'));",
+                  "}"
                 ]
               }
             }
@@ -1123,12 +1104,17 @@
                 "exec": [
                   "var body = pm.response.text();",
                   "var code = pm.response.code;",
+                  "var oid = pm.environment.get('order_id');",
                   "pm.test('[06.2] Status hop le (200/302)', function () {",
                   "    pm.expect([200, 302]).to.include(code);",
                   "});",
                   "pm.test('[06.2] Admin phan hoi sau khi duyet', function () {",
-                  "    var ok = body.includes('ROYAL ADMIN') || body.includes('alert(') || body.includes('admin.php') || body.includes('Đã duyệt') || body.includes('Đã từ chối') || body.includes('ĐĂNG NHẬP');",
+                  "    var ok = body.includes('ROYAL ADMIN') || body.includes('alert(') || body.includes('Đã duyệt') || body.includes('admin.php');",
                   "    pm.expect(ok).to.eql(true);",
+                  "});",
+                  "pm.test('[06.2] Da goi approve_order voi order_id hop le', function () {",
+                  "    pm.expect(oid).to.not.be.empty;",
+                  "    console.log('Approved order_id=', oid);",
                   "});"
                 ]
               }
@@ -1159,6 +1145,25 @@
           "name": "06.3 - GET Admin tu choi don thanh toan",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Lay order pending con lai truoc khi cancel",
+                  "const base = pm.environment.get('base_url');",
+                  "pm.sendRequest(base + '/admin.php', function (err, res) {",
+                  "    if (err || !res) return;",
+                  "    var body = res.text();",
+                  "    var m = body.match(/cancel_order=(\\d+)/);",
+                  "    if (m) {",
+                  "        pm.environment.set('order_id', m[1]);",
+                  "        console.log('Cancel target order_id:', m[1]);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -1169,7 +1174,7 @@
                   "    pm.expect([200, 302]).to.include(code);",
                   "});",
                   "pm.test('[06.3] Admin phan hoi sau khi tu choi', function () {",
-                  "    var ok = body.includes('ROYAL ADMIN') || body.includes('alert(') || body.includes('admin.php') || body.includes('Đã duyệt') || body.includes('Đã từ chối') || body.includes('ĐĂNG NHẬP');",
+                  "    var ok = body.includes('ROYAL ADMIN') || body.includes('alert(') || body.includes('Đã từ chối') || body.includes('admin.php');",
                   "    pm.expect(ok).to.eql(true);",
                   "});"
                 ]
